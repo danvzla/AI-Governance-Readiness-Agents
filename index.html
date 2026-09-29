@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Governance Readiness Agents — Daniel Mazzini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6FA; --surface:#FFFFFF; --surface-2:#EDF1F6; --surface-3:#E3E9F1; --line:#D5DDE8;
+  --ink:#13233A; --ink-2:#44576F; --ink-3:#687B93;
+  --teal:#0E7A70; --teal-soft:#DCF1EE; --amber:#8F5B0B; --amber-soft:#FAEDD5;
+  --red:#AE3730; --red-soft:#F8E0DE; --blue:#2458C6; --blue-soft:#E2EAFB;
+  --violet:#6A45C2; --violet-soft:#ECE6FA; --slate:#55657A; --slate-soft:#E6EBF1;
+  --on-accent:#FFFFFF; --focus:#2463EB;
+  --shadow:0 1px 2px rgba(19,35,58,.06),0 8px 24px rgba(19,35,58,.07);
+  --font:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1422; --surface:#111F33; --surface-2:#172940; --surface-3:#1D324D; --line:#243858;
+    --ink:#E7EEF7; --ink-2:#A9B8CC; --ink-3:#8194AD;
+    --teal:#42CBBB; --teal-soft:rgba(66,203,187,.13); --amber:#F2B550; --amber-soft:rgba(242,181,80,.13);
+    --red:#F27E74; --red-soft:rgba(242,126,116,.14); --blue:#7EA8FF; --blue-soft:rgba(126,168,255,.13);
+    --violet:#B39BFF; --violet-soft:rgba(179,155,255,.13); --slate:#A2B2C7; --slate-soft:rgba(162,178,199,.11);
+    --on-accent:#04201C; --focus:#7FA9FF; --shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px rgba(0,0,0,.25); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1422; --surface:#111F33; --surface-2:#172940; --surface-3:#1D324D; --line:#243858;
+  --ink:#E7EEF7; --ink-2:#A9B8CC; --ink-3:#8194AD;
+  --teal:#42CBBB; --teal-soft:rgba(66,203,187,.13); --amber:#F2B550; --amber-soft:rgba(242,181,80,.13);
+  --red:#F27E74; --red-soft:rgba(242,126,116,.14); --blue:#7EA8FF; --blue-soft:rgba(126,168,255,.13);
+  --violet:#B39BFF; --violet-soft:rgba(179,155,255,.13); --slate:#A2B2C7; --slate-soft:rgba(162,178,199,.11);
+  --on-accent:#04201C; --focus:#7FA9FF; --shadow:0 1px 2px rgba(0,0,0,.25),0 10px 30px rgba(0,0,0,.25); color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:var(--teal)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- app shell ---------- */
+.app{height:100%;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto}
+.topbar{position:relative;display:flex;align-items:center;gap:16px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:32px;height:32px;border-radius:9px;background:var(--teal);color:var(--on-accent);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.brand b{display:block;font-size:14.5px;line-height:1.25;white-space:nowrap}
+.brand small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap}
+.context{display:flex;gap:6px;flex-wrap:wrap;margin-left:8px}
+.ctx{font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.ctx b{color:var(--ink);font-weight:600}
+.tools{margin-left:auto;display:flex;align-items:center;gap:8px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{border:0;background:none;color:var(--ink-2);padding:5px 12px;border-radius:7px;font-size:13px;font-weight:600}
+.seg button[aria-checked="true"]{background:var(--teal);color:var(--on-accent)}
+.seg button:disabled{cursor:not-allowed}
+.pbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.pbtn i{width:8px;height:8px;border-radius:50%;background:var(--teal);display:inline-block}
+.pbtn.warn i{background:var(--amber)} .pbtn.err i{background:var(--red)}
+.iconbtn{width:34px;height:34px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:8px;display:grid;place-items:center}
+.iconbtn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.keypanel{position:absolute;right:20px;top:calc(100% + 6px);z-index:30;width:min(420px,calc(100vw - 40px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;display:grid;gap:10px}
+.keypanel[hidden]{display:none}
+.keypanel h3{margin:0;font-size:15px}
+.keypanel label{display:grid;gap:4px;font-size:12.5px;color:var(--ink-3);font-weight:600}
+.keypanel input{background:var(--surface-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font-size:13px;font-family:var(--mono)}
+.keypanel .row{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.pmsg{margin:0;font-size:12.5px;color:var(--ink-2);padding:8px 10px;border-radius:8px;background:var(--teal-soft)}
+.pmsg.warn{background:var(--amber-soft)} .pmsg.err{background:var(--red-soft)}
+.pmsg b{color:var(--ink)}
+.fine{font-size:12px;color:var(--ink-3);margin:0}
+
+/* ---------- stepper ---------- */
+.stepper{display:flex;align-items:stretch;gap:0;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.steps{display:flex;flex:1;min-width:0;overflow-x:auto}
+.step{position:relative;display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2px solid transparent;padding:12px 22px 11px 0;margin-right:10px;color:var(--ink-2);text-align:left}
+.step:not(:last-child)::after{content:"";width:22px;height:1px;background:var(--line);margin-left:12px}
+.sn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12.5px;font-weight:700;flex:none;color:var(--ink-3)}
+.step b{display:block;font-size:13.5px;color:var(--ink);white-space:nowrap}
+.step small{display:block;font-size:12px;color:var(--ink-3);white-space:nowrap}
+.step[aria-selected="true"]{border-bottom-color:var(--teal)}
+.step.done .sn{border-color:var(--teal);color:var(--teal)}
+.step[aria-selected="true"] .sn{background:var(--teal);border-color:var(--teal);color:var(--on-accent)}
+.step.busy small{color:var(--teal)}
+.step.wait small{color:var(--amber)}
+.step:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;align-items:center;gap:8px;padding-left:12px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:9px;font-weight:600;font-size:13.5px;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:var(--on-accent)}
+.btn.quiet{background:none}
+.btn.small{padding:6px 11px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- views ---------- */
+.views{min-height:0;position:relative}
+.view{height:100%;min-height:0;padding:18px 20px}
+.view[hidden]{display:none}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;min-width:0;min-height:0;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.panel-h{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex:none}
+.panel-h h2,.panel-h h3{margin:0;font-size:14.5px}
+.panel-h small{font-size:12px;color:var(--ink-3);font-family:var(--mono)}
+.scroll{overflow:auto;min-height:0;flex:1}
+.pad{padding:18px 20px}
+.vhead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.vhead h2{margin:0 0 2px;font-size:20px;letter-spacing:-.012em}
+.vhead p{margin:0;color:var(--ink-2);font-size:13.5px;max-width:70ch}
+.vhead .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* tags + common */
+.tag{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;line-height:1.5;white-space:nowrap;border:1px solid transparent;vertical-align:1px}
+.tag.fact{background:var(--teal-soft);color:var(--teal)}
+.tag.assumption{background:var(--amber-soft);color:var(--amber)}
+.tag.unknown{background:transparent;color:var(--slate);border:1px dashed var(--slate)}
+.how{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.how.rule{background:var(--blue-soft);color:var(--blue)} .how.model{background:var(--violet-soft);color:var(--violet)}
+.how.human{background:var(--amber-soft);color:var(--amber)} .how.mix{background:var(--teal-soft);color:var(--teal)}
+.muted{color:var(--ink-3)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;font-size:12px;color:var(--ink-3);padding:8px 12px;background:var(--surface-2);white-space:nowrap;position:sticky;top:0}
+td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+td code{font-family:var(--mono);font-size:11.5px;word-break:break-word}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.chip{font-size:10.5px;padding:1px 6px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+
+/* ---------- about ---------- */
+.about{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;height:100%}
+.subnav{display:flex;flex-direction:column;gap:4px;padding:10px}
+.subnav button{text-align:left;background:none;border:0;border-radius:9px;padding:9px 12px;color:var(--ink-2);font-weight:600;font-size:13.5px}
+.subnav button small{display:block;font-weight:400;font-size:12px;color:var(--ink-3)}
+.subnav button[aria-selected="true"]{background:var(--teal-soft);color:var(--ink)}
+.subnav .foot{margin-top:auto;padding:10px 4px 2px}
+.apane[hidden]{display:none}
+.apane h2{font-size:22px;letter-spacing:-.015em;margin:0 0 8px;max-width:28ch}
+.apane h3{font-size:14.5px;margin:18px 0 10px}
+.apane p{max-width:74ch;color:var(--ink-2);margin:0 0 12px}
+.qgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.q{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px}
+.q b{display:block;margin-bottom:5px}
+.q span{font-size:13px;color:var(--ink-2)}
+.principles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.principles li{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px}
+.principles .n{width:24px;height:24px;border-radius:50%;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-size:12px;font-weight:700}
+.principles b{display:block;margin-bottom:2px}
+.principles span{font-size:13px;color:var(--ink-2)}
+.notlist{margin:0;padding-left:20px;color:var(--ink-2);font-size:13.5px}
+.notlist li{margin-bottom:4px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink-2)}
+.tries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.try{border:1px dashed var(--line);border-radius:12px;padding:12px}
+.try b{display:block;margin-bottom:3px;font-size:13.5px}
+.try span{font-size:13px;color:var(--ink-2)}
+.notice{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink-2);margin:0 0 14px;max-width:74ch}
+.notice strong{color:var(--ink)}
+
+/* ---------- evidence ---------- */
+.evwrap{height:100%;display:flex;flex-direction:column;min-height:0}
+.cards{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(150px,1fr);gap:12px;padding:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow);transition:opacity .2s,border-color .2s;min-height:0}
+.card:hover{border-color:var(--ink-3)}
+.card.off{opacity:.5;box-shadow:none}
+.card-top{display:flex;align-items:center;gap:12px}
+.ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+.ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.c-teal{background:var(--teal-soft);color:var(--teal)} .c-blue{background:var(--blue-soft);color:var(--blue)}
+.c-violet{background:var(--violet-soft);color:var(--violet)} .c-amber{background:var(--amber-soft);color:var(--amber)}
+.card-t{min-width:0;flex:1}
+.card-t small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:600}
+.card-t h3{margin:0;font-size:14.5px;line-height:1.3}
+.switch{position:relative;width:40px;height:23px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:99px;background:var(--surface-3);border:1px solid var(--line);transition:background .15s}
+.switch span::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:var(--ink-3);transition:transform .15s,background .15s}
+.switch input:checked+span{background:var(--teal);border-color:var(--teal)}
+.switch input:checked+span::after{transform:translateX(17px);background:var(--on-accent)}
+.switch input:focus-visible+span{outline:2px solid var(--focus);outline-offset:2px}
+.switch input:disabled{cursor:not-allowed}
+.stat-line{display:flex;align-items:baseline;gap:8px}
+.stat-line b{font-size:26px;letter-spacing:-.02em;line-height:1}
+.stat-line span{font-size:12.5px;color:var(--ink-2)}
+.card p{margin:0;font-size:13px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.feeds{font-size:11.5px;color:var(--ink-3)}
+.linkbtn{background:none;border:0;padding:0;color:var(--teal);font-weight:600;font-size:12.5px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(5,12,22,.55);z-index:40}
+.scrim[hidden]{display:none}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(560px,100vw);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer[hidden]{display:none}
+.drawer .dl{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px 12px;font-size:13.5px;margin:0 0 16px}
+.drawer dt{color:var(--ink-3);font-weight:600}
+.drawer dd{margin:0;color:var(--ink-2)}
+.drawer h4{margin:16px 0 8px;font-size:13.5px}
+.drawer ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink-2)}
+pre{font-family:var(--mono);font-size:11.5px;line-height:1.65;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;margin:0;color:var(--ink)}
+
+/* ---------- run ---------- */
+.run{display:grid;grid-template-columns:260px minmax(0,1fr) 320px;gap:14px;height:100%}
+.rail{list-style:none;margin:0;padding:8px;display:flex;flex-direction:column;gap:4px}
+.rail button{width:100%;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;text-align:left;background:none;border:1px solid transparent;border-radius:10px;padding:9px 10px;color:var(--ink)}
+.rail button[aria-disabled="true"]{cursor:default}
+.rail button:not([aria-disabled="true"]):hover{background:var(--surface-2)}
+.rail button[aria-current="true"]{background:var(--surface-2);border-color:var(--line)}
+.rail .dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:11.5px;font-weight:700;color:var(--ink-3);font-family:var(--mono)}
+.rail .nm{display:block;font-weight:600;font-size:13.5px;line-height:1.3}
+.rail .meta{display:flex;gap:6px;align-items:center;margin-top:3px;font-size:11.5px;color:var(--ink-3)}
+.rail li.done .dot{background:var(--teal-soft);border-color:var(--teal);color:var(--teal)}
+.rail li.running .dot{border-color:var(--teal);color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft)}
+.rail li.waiting .dot{border-color:var(--amber);color:var(--amber);box-shadow:0 0 0 3px var(--amber-soft)}
+.rail li.human .dot{border-style:dashed}
+.rail li.fb .meta span:first-child{color:var(--amber)}
+@media (prefers-reduced-motion: no-preference){
+  .rail li.running .dot{animation:pulse 1.4s ease-in-out infinite}
+  @keyframes pulse{50%{box-shadow:0 0 0 6px var(--teal-soft)}}
+}
+.progress{height:3px;background:var(--surface-2);flex:none}
+.progress i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
+.stage-h{display:flex;align-items:center;gap:10px}
+.stage-h .ttl{font-weight:600;font-size:14.5px}
+.stage-h .sub{font-size:12.5px;color:var(--ink-3)}
+.io{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.io div{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--ink-2)}
+.io b{display:block;font-size:12px;color:var(--ink-3);margin-bottom:2px}
+.ready{max-width:640px}
+.ready h2{margin:0 0 8px;font-size:22px;letter-spacing:-.015em}
+.ready p{color:var(--ink-2);margin:0 0 14px}
+.scope{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
+.scope div{border:1px solid var(--line);border-radius:12px;padding:12px}
+.scope b{display:block;font-size:22px;letter-spacing:-.02em;line-height:1.1}
+.scope span{font-size:12.5px;color:var(--ink-2)}
+.working{display:flex;align-items:center;gap:12px;padding:14px;border:1px dashed var(--line);border-radius:12px;color:var(--ink-2);font-size:13.5px}
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid var(--teal-soft);border-top-color:var(--teal);flex:none}
+@media (prefers-reduced-motion: no-preference){.spin{animation:rot .9s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}}
+#trace{list-style:none;margin:0;padding:10px 14px;font-family:var(--mono);font-size:11.5px;line-height:1.55}
+#trace li{padding:3px 0;display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px}
+#trace li:has(.empty){display:block}
+#trace .t{color:var(--ink-3)}
+#trace .a{color:var(--teal);font-weight:500}
+#trace li.human .a{color:var(--amber)}
+#trace li.warn,#trace li.warn .a{color:var(--amber)}
+#trace li.llm .a{color:var(--violet)}
+#trace .empty{display:block;color:var(--ink-3);font-family:var(--font);font-size:13px;padding:8px 0}
+
+/* output blocks (shared by run + results) */
+.out h3{font-size:15px;margin:0 0 4px}
+.hint{font-size:13px;color:var(--ink-2);margin:0 0 12px;max-width:74ch}
+.empty{color:var(--ink-2);font-size:13.5px}
+.fbnote,.srcnote{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;margin-bottom:8px}
+.fbnote{color:var(--amber);background:var(--amber-soft)} .srcnote{color:var(--violet);background:var(--violet-soft)}
+.risk{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.risk.na{border-style:dashed}
+.risk-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.rid{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.sev{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;text-transform:capitalize}
+.sev.critical{background:var(--red);color:var(--on-accent)} .sev.high{border:1px solid var(--red);color:var(--red)}
+.sev.medium{border:1px solid var(--slate);color:var(--slate)} .sev.low{border:1px dashed var(--slate);color:var(--slate)}
+.risk h4{margin:0 0 5px;font-size:14px}
+.risk p{margin:0 0 5px;font-size:13px;color:var(--ink-2)}
+.risk .meta{font-size:12.5px;color:var(--ink-2)}
+.risk .meta b{color:var(--ink);font-weight:600}
+.choice{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.choice label{font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.choice input{accent-color:var(--teal)}
+.choice label:has(input:checked){border-color:var(--teal);background:var(--teal-soft)}
+.gatebar{position:sticky;bottom:-18px;background:var(--surface);border-top:1px solid var(--line);margin:14px -20px -18px;padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.decision{font-size:12.5px;font-weight:600}
+.decision.accept{color:var(--teal)} .decision.downgrade,.decision.evidence{color:var(--amber)}
+.score{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) 60px 80px;gap:12px;align-items:center;padding:6px 0;font-size:13px}
+.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:99px}
+.score .v{font-family:var(--mono);font-size:12px;text-align:right}
+.cov{font-size:11px;font-weight:600;text-align:right}
+.cov.full{color:var(--teal)} .cov.partial{color:var(--amber)} .cov.low,.cov.none{color:var(--red)}
+.road{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:8px}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.col h4{margin:0 0 8px;font-size:13.5px}
+.col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.col li{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12.5px}
+.col li .o{display:block;color:var(--ink-3);font-size:11.5px;margin-top:3px}
+.col li.ev{border-style:dashed}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:6px 0 16px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:26px;letter-spacing:-.02em;line-height:1.1}
+.stat span{font-size:12px;color:var(--ink-2)}
+.stat.alert b{color:var(--red)}
+ol.decisions{margin:0 0 14px;padding-left:20px}
+ol.decisions li{margin-bottom:5px;font-size:13.5px}
+.sep{height:1px;background:var(--line);margin:16px 0}
+
+
+/* prompt inspector */
+.drawer.wide{width:min(820px,100vw)}
+.insp-meta{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.insp-meta span{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2)}
+.insp-meta span b{color:var(--ink);font-weight:600}
+.insp-meta .m-live{background:var(--violet-soft);color:var(--violet);border-color:transparent}
+.insp-meta .m-prev{background:var(--blue-soft);color:var(--blue);border-color:transparent}
+.insp-meta .m-fb{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+.insp h4{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-size:13.5px}
+.insp h4:first-of-type{margin-top:6px}
+.insp h4 .k{width:20px;height:20px;border-radius:50%;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-size:11px;font-weight:700}
+.insp pre{white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto}
+.insp pre .gr{display:block;border-left:2px solid var(--teal);background:var(--teal-soft);margin:1px -14px;padding:0 12px}
+.insp details{border:1px solid var(--line);border-radius:10px;margin:0 0 8px;background:var(--surface-2)}
+.insp summary{cursor:pointer;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.insp details pre{border:0;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+.insp .part{margin:0 0 8px}
+.insp ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink-2)}
+.insp li{margin-bottom:3px}
+.insp .note{font-size:13px;color:var(--ink-2);background:var(--surface-2);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin:0}
+.insp .note.err{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.stage-h{flex:1;min-width:0}
+.stage-h .btn{margin-left:auto}
+
+/* ---------- results ---------- */
+.results{display:grid;grid-template-columns:230px minmax(0,1fr);gap:16px;height:100%}
+.locked{max-width:520px;margin:40px auto;text-align:center;color:var(--ink-2)}
+.locked h2{color:var(--ink);font-size:20px;margin:0 0 8px}
+
+
+/* ---------- v4 additions ---------- */
+.evgrid{flex:1;min-height:0;display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px}
+.evgrid .cards{height:100%}
+.evgrid .card p{-webkit-line-clamp:1}
+.evgrid .card{gap:6px}
+.pw dl{display:grid;grid-template-columns:72px minmax(0,1fr);gap:6px 10px;margin:0 0 12px;font-size:12.5px}
+.pw dt{color:var(--ink-3);font-weight:600}
+.pw dd{margin:0;color:var(--ink-2)}
+.pw dd strong{color:var(--ink)}
+.pw h4{margin:4px 0 6px;font-size:13px}
+.pw ul{margin:0 0 8px;padding-left:18px;font-size:12.5px;color:var(--ink-2)}
+.tri{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:2px}
+.tri button{border:0;background:none;color:var(--ink-3);font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:6px}
+.tri button[aria-checked="true"][data-av="available"]{background:var(--teal);color:var(--on-accent)}
+.tri button[aria-checked="true"][data-av="partial"]{background:var(--amber);color:var(--on-accent)}
+.tri button[aria-checked="true"][data-av="none"]{background:var(--surface-3);color:var(--ink)}
+.tri button:disabled{cursor:not-allowed}
+.card.av-none{opacity:.5;box-shadow:none}
+.card.av-partial{border-color:var(--amber)}
+.av{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px}
+.av-a{background:var(--teal-soft);color:var(--teal)} .av-p{background:var(--amber-soft);color:var(--amber)} .av-n{border:1px dashed var(--slate);color:var(--slate)}
+.chip.part{border-color:var(--amber);color:var(--amber)}
+.chip.dec{border-color:var(--teal);color:var(--teal)}
+.chip.new{border-color:var(--violet);color:var(--violet)}
+.cls{font-size:11px;font-weight:600;padding:1px 6px;border-radius:5px;border:1px solid var(--line)}
+.cls-restricted{border-color:var(--red);color:var(--red)} .cls-confidential{border-color:var(--amber);color:var(--amber)}
+.cls-internal{color:var(--ink-2)} .cls-unknown{border-style:dashed;color:var(--slate)}
+.tier{font-size:11px;font-weight:600}
+.t-high{color:var(--red)} .t-medium{color:var(--amber)} .t-low{color:var(--teal)}
+.cond{font-size:13px;margin:6px 0;padding:8px 10px;border-left:2px solid var(--teal);background:var(--teal-soft);border-radius:0 8px 8px 0}
+.cond b{display:block;font-size:11.5px;color:var(--teal);margin-bottom:1px}
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:4px;margin-top:8px}
+.chain span{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:5px 9px;min-width:0}
+.chain small{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+.chain i{font-style:normal;color:var(--ink-3);align-self:center}
+.review-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:10px}
+.review-row .choice{margin-top:0}
+.dispsel{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-3);font-weight:600}
+.dispsel select{font:inherit;font-size:12.5px;background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 14px}
+.box{border:1px solid var(--line);border-radius:12px;padding:14px}
+.box.accent{border-color:var(--violet)}
+.box h4{margin:0 0 6px;font-size:13.5px}
+.box p{margin:0 0 6px;font-size:13px;color:var(--ink-2)}
+.box .disp{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--teal);margin-bottom:4px}
+.plain{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.plain li{display:grid;gap:2px;font-size:13px}
+.plain li span{font-size:12px;color:var(--ink-2)}
+.strip{display:flex;flex-wrap:wrap;gap:14px;align-items:center;border:1px dashed var(--line);border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:13px;color:var(--ink-2)}
+.strip b{color:var(--ink);font-size:16px}
+.strip .btn{margin-left:auto}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;display:grid;gap:4px}
+.tool.warn{border-style:dashed}
+.tool-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.risk-l{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.rl-high{background:var(--red);color:var(--on-accent)} .rl-elevated{background:var(--amber-soft);color:var(--amber)}
+.rl-moderate{background:var(--slate-soft);color:var(--slate)} .rl-low{background:var(--teal-soft);color:var(--teal)}
+.roles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:6px}
+.roles div{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;display:grid;gap:3px}
+.roles b{font-size:12.5px}
+.roles span{color:var(--ink-2)}
+.sub-h{margin:16px 0 8px;font-size:13.5px}
+.gates{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.gates div{border:1px solid var(--line);border-radius:10px;padding:8px;display:grid;gap:2px;font-size:12px}
+.gates div.has{border-color:var(--amber);background:var(--amber-soft)}
+.gates b{font-family:var(--mono);font-size:12px}
+.gates span{color:var(--ink-2)}
+.gates em{font-style:normal;font-size:11px;color:var(--ink-3)}
+.gates div.has em{color:var(--amber);font-weight:600}
+.subnav.compact button{padding:7px 12px;font-size:13px}
+.subnav.compact .navgrp{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:6px 12px 2px}
+.subnav.compact .navgrp.more{margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.subnav.compact .dn{font-family:var(--mono);font-size:11px;color:var(--teal);margin-right:8px}
+.subnav.compact button.minor{font-weight:500;padding:5px 12px;font-size:12.5px}
+@media (max-width:860px){.subnav.compact .navgrp{display:none}}
+.col li.k-block{border-color:var(--red)} .col li.k-assure{border-color:var(--violet)}
+@media (max-width:1180px){.evgrid{grid-template-columns:minmax(0,1fr)} .evgrid .cards{height:auto}}
+@media (max-width:860px){.two,.roles{grid-template-columns:minmax(0,1fr)} .gates{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.chain span.dec{transition:border-color .15s,background .15s}
+.chain span.ovr{border-color:var(--amber);background:var(--amber-soft)}
+.ovr-tag{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--amber);background:var(--amber-soft);border-radius:4px;padding:1px 5px;margin-left:4px}
+.ovr-tag.ev{color:var(--violet);background:var(--violet-soft)}
+.chain .ovr .ovr-tag{background:transparent;padding:0}
+.chain em.was{font-style:normal;font-size:11px;color:var(--ink-3);text-decoration:line-through}
+.rate-flag:empty{display:none}
+/* ---------- v4.2: scorecard legend, previews, sub-toggle ---------- */
+.sc-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.sc-avg{font-size:13px;color:var(--ink-2)} .sc-avg b{font-size:18px;color:var(--ink)}
+.legend04{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 12px}
+.legend04 .lv{border:1px solid var(--line);border-radius:9px;padding:7px 9px;font-size:11.5px;display:grid;gap:2px;border-top-width:3px}
+.legend04 .lv b{font-size:12px}
+.legend04 .lv span{color:var(--ink-2);line-height:1.35}
+.lv0{border-top-color:var(--slate)} .lv1{border-top-color:var(--red)} .lv2{border-top-color:var(--amber)} .lv3{border-top-color:var(--teal)} .lv4{border-top-color:var(--blue)}
+.sc-rows{display:grid;gap:2px}
+.score2{display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(0,1fr) 108px 78px;gap:12px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.score2 .sd{display:grid;gap:1px;min-width:0}
+.score2 .nm{font-weight:600}
+.score2 .why{font-size:11.5px;color:var(--ink-3);line-height:1.35}
+.score2 .bar i.lv0{background:var(--slate)} .score2 .bar i.lv1{background:var(--red)} .score2 .bar i.lv2{background:var(--amber)} .score2 .bar i.lv3{background:var(--teal)} .score2 .bar i.lv4{background:var(--blue)}
+.score2 .v{font-family:var(--mono);font-size:12px;white-space:nowrap;text-align:right;font-weight:600}
+.lvt0{color:var(--slate)} .lvt1{color:var(--red)} .lvt2{color:var(--amber)} .lvt3{color:var(--teal)} .lvt4{color:var(--blue)}
+.subtog{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px;margin-bottom:8px}
+.subtog button{border:0;background:none;color:var(--ink-2);padding:6px 12px;border-radius:7px;font-size:13px;font-weight:600}
+.subtog button[aria-selected="true"]{background:var(--teal);color:var(--on-accent)}
+.pv-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:8px 0 12px}
+.pv-stats div{border:1px solid var(--line);border-radius:10px;padding:10px}
+.pv-stats b{display:block;font-size:22px;letter-spacing:-.02em;line-height:1.1}
+.pv-stats span{font-size:12px;color:var(--ink-2)}
+.pv-stats .al b{color:var(--red)}
+.pv-list{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px;font-size:13px}
+.pv-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px;font-size:12.5px}
+.pv-chips span{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:4px 8px}
+.pv-disp{border:1px solid var(--teal);background:var(--teal-soft);border-radius:10px;padding:10px 12px;margin:8px 0 4px;display:grid}
+.pv-disp span{font-size:12px;color:var(--ink-2)} .pv-disp b{font-size:18px;color:var(--teal)}
+.pv-go{margin-top:6px}
+@media (max-width:860px){.legend04{grid-template-columns:1fr 1fr}.score2{grid-template-columns:minmax(0,1fr) 96px 70px}.score2 .bar{grid-column:1 / -1;grid-row:2}}
+/* ---------- v4.2 compact tables ---------- */
+table.dense{font-size:12.5px}
+table.dense td{padding:5px 10px}
+table.dense th{padding:6px 10px}
+table.dense .tag{font-size:9.5px;padding:1px 5px}
+.nowrap{white-space:nowrap}
+table.inv td{padding:4px 9px} table.inv td:first-child strong{white-space:nowrap}
+.sdot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:1px}
+.sdot.critical{background:var(--red)} .sdot.high{border:2px solid var(--red);width:9px;height:9px} .sdot.medium{background:var(--slate)} .sdot.low{border:1px dashed var(--slate)}
+tr.ovr-row td{background:var(--amber-soft)}
+.acc{display:grid;gap:4px}
+.acc-row{border:1px solid var(--line);border-radius:10px}
+.acc-row.na{border-style:dashed}
+.acc-row summary{display:grid;grid-template-columns:34px 78px minmax(0,1fr) 190px 130px 100px;gap:10px;align-items:center;padding:8px 12px;cursor:pointer;font-size:13px;list-style:none}
+.acc-row summary::-webkit-details-marker{display:none}
+.acc-row[open] summary{border-bottom:1px solid var(--line)}
+.acc-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-m{font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-d{font-size:12px;font-weight:600;color:var(--teal);text-align:right}
+.acc-b{padding:8px}
+.acc-b .risk{margin:0;border:0;padding:4px}
+.op2{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.4fr);gap:12px}
+.col{padding:8px} .col ul{gap:5px} .col li{padding:5px 8px;font-size:12px} .col li .o{font-size:11px;margin-top:1px}
+.roles div{padding:7px 8px}
+.road{margin-top:4px}.col h4{margin:0 0 6px}
+.op2 .table-wrap td{padding:4px 10px}
+@media (max-width:1100px){.acc-row summary{grid-template-columns:34px 78px minmax(0,1fr) 100px}.acc-m{display:none}.op2{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- v4.3: deliverable explanation + PDF report ---------- */
+.step{padding-right:12px;margin-right:6px}
+.step:not(:last-child)::after{width:14px;margin-left:10px}
+.actions .btn{padding:8px 12px}
+.subnav.compact{gap:1px;padding:8px}
+.subnav.compact button{padding:5px 12px}
+.subnav.compact button.minor{padding:3px 12px}
+.subnav.compact .navgrp{padding:4px 12px 2px}
+.subnav.compact .navgrp.more{margin-top:6px;padding-top:8px}
+.subnav.compact .explain{margin-top:auto;border-top:1px solid var(--line);padding:10px 12px 4px;font-size:11.5px;color:var(--ink-2);display:grid;gap:4px}
+.subnav.compact .explain b{font-size:12px;color:var(--ink)}
+.subnav.compact .explain p{margin:0;line-height:1.4}
+.subnav.compact .explain em{font-style:normal;font-weight:700;color:var(--teal)}
+#report{display:none}
+@media print{
+  @page{size:13.333in 7.5in;margin:0}
+  html,body{height:auto!important;background:#fff!important}
+  body > *:not(#report){display:none!important}
+  #report{display:block!important}
+}
+#report{font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#13233A}
+#report *{box-sizing:border-box}
+.rp{width:13.333in;height:7.5in;position:relative;overflow:hidden;background:#F3F6FA;padding:.62in .6in .55in;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rp-top{position:absolute;top:.2in;left:.6in;right:.6in;display:flex;justify-content:space-between;font-size:7.5pt;font-weight:700;letter-spacing:.06em;color:#44576F}
+.rp-foot{position:absolute;bottom:.22in;left:.6in;right:.6in;border-top:1px solid #D5DDE8;padding-top:5px;display:flex;justify-content:space-between;font-size:7.5pt;color:#687B93}
+.rp-eyebrow{font-size:8.5pt;font-weight:700;letter-spacing:.06em}
+.rp-badge{position:absolute;top:.55in;right:.6in;background:#FAEDD5;color:#8F5B0B;font-size:7.5pt;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.04em}
+.rp h1{font-size:24pt;margin:.06in 0 .03in;letter-spacing:-.01em;line-height:1.1}
+.rp-sub{color:#44576F;font-size:10.5pt;margin:0 0 .2in}
+.rp-note{font-size:8pt;color:#687B93;margin:.06in 0 0}
+.rp-strip{margin-top:.14in;display:inline-block;background:#FAEDD5;color:#8F5B0B;font-size:7.5pt;font-weight:700;letter-spacing:.04em;padding:4px 8px;border-radius:4px}
+.rc{background:#fff;border:1px solid #D5DDE8;border-top:4px solid #0E7A70;border-radius:10px;padding:10px 12px;font-size:9pt}
+.rc b{display:block;font-size:8.5pt;letter-spacing:.03em;margin-bottom:4px}
+.rc p{margin:0 0 4px;color:#44576F;line-height:1.4}
+.rc ul{margin:4px 0 0;padding-left:16px;color:#44576F;line-height:1.45}
+.rc.soft{background:#E8F6F3}
+.t-teal{border-top-color:#1BA597}.t-blue{border-top-color:#3D7BE0}.t-violet{border-top-color:#8B6BE0}.t-amber{border-top-color:#E0A33B}.t-red{border-top-color:#D0544B}.t-green{border-top-color:#2E9E62}
+.big{display:block;font-size:24pt;color:#44576F;margin-top:6px}
+.r4{display:grid;grid-template-columns:repeat(4,1fr);gap:.14in;margin-bottom:.16in}
+.r5{display:grid;grid-template-columns:repeat(5,1fr);gap:.1in;margin-bottom:.14in}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:.16in}
+.r2.tight{gap:.14in;align-items:start}
+.rtools{display:grid;grid-template-columns:1fr 1fr;gap:.1in}
+.rrisks{display:grid;grid-template-columns:repeat(3,1fr);gap:.1in}
+.rrisks .rc{font-size:8pt;padding:8px 10px}.rrisks .ev{color:#13233A;font-weight:600}
+.rroad .rc{min-height:2.7in}.rroad ul{padding-left:14px;font-size:8.5pt}.rroad li span{color:#8F5B0B;font-weight:700;font-size:7.5pt}
+.rt{width:100%;border-collapse:collapse;font-size:8.5pt;background:#fff;border:1px solid #D5DDE8}
+.rt th{background:#E9EEF5;text-align:left;padding:5px 7px;font-size:7.5pt;letter-spacing:.03em;color:#44576F}
+.rt td{padding:4px 7px;border-top:1px solid #E3E9F1;vertical-align:top}
+.rt td.u{color:#8F5B0B;font-weight:600}
+.rt tr.ov td{background:#FDF3E1}
+.rflow{display:grid;grid-template-columns:repeat(8,1fr);gap:.06in;margin-bottom:.14in}
+.rflow div{background:#fff;border:1px solid #D5DDE8;border-radius:8px;padding:6px 8px;font-size:8pt;display:grid}
+.rflow div.has{border-color:#E0A33B;background:#FDF3E1}
+.rflow em{font-style:normal;color:#8F5B0B;font-size:7.5pt}
+.rleg{display:grid;grid-template-columns:repeat(5,1fr);gap:.08in;margin-bottom:.14in}
+.rleg div{background:#fff;border:1px solid #D5DDE8;border-top:4px solid;border-radius:8px;padding:6px 8px;font-size:8pt;display:grid;gap:2px;color:#44576F}
+.rleg b{color:#13233A}
+.rleg .lv0{border-top-color:#8A99AD}.rleg .lv1{border-top-color:#D0544B}.rleg .lv2{border-top-color:#E0A33B}.rleg .lv3{border-top-color:#1BA597}.rleg .lv4{border-top-color:#3D7BE0}
+.rscore{display:grid;gap:.05in}
+.rscore > div{display:grid;grid-template-columns:4.2in 1fr 1.2in .8in;gap:.15in;align-items:center;background:#fff;border:1px solid #D5DDE8;border-radius:8px;padding:6px 10px;font-size:9pt}
+.rscore .nm{font-weight:600;display:grid}.rscore .nm em{font-style:normal;font-weight:400;font-size:7.5pt;color:#687B93}
+.rscore .bar{height:8px;background:#E9EEF5;border-radius:99px;overflow:hidden}
+.rscore .bar i{display:block;height:100%}
+.rscore i.lv0{background:#8A99AD}.rscore i.lv1{background:#D0544B}.rscore i.lv2{background:#E0A33B}.rscore i.lv3{background:#1BA597}.rscore i.lv4{background:#3D7BE0}
+.rscore .v{font-weight:700;text-align:right}.rscore .cv{font-size:7.5pt;color:#687B93;text-align:right}
+.rp.cover{background:#0A1422;color:#E7EEF7}
+.rp.cover .rp-top{color:#8194AD}
+.cv-main{position:absolute;left:.6in;top:1.5in;width:6.8in}
+.cv-main h1{font-size:30pt;color:#fff;line-height:1.12;margin:0 0 .15in}
+.cv-main p{color:#A9B8CC;font-size:12pt;margin:0 0 .22in}
+.cv-chips{display:flex;gap:.1in;margin-bottom:.3in}
+.cv-chips span{border:1px solid #2F4A70;background:#132238;color:#E7EEF7;font-size:8pt;font-weight:700;padding:6px 12px;border-radius:6px;letter-spacing:.04em}
+.cv-meta{display:grid;grid-template-columns:1.5in 1fr;gap:4px 10px;font-size:9.5pt;margin:0}
+.cv-meta dt{color:#8194AD}.cv-meta dd{margin:0;color:#E7EEF7}
+.cv-orb{position:absolute;right:1in;top:1.6in;width:3.6in;height:3.6in;border-radius:50%;background:#132238;border:1px solid #1D324D}
+.cv-orb::after{content:"";position:absolute;inset:.6in;border-radius:50%;border:2px solid #42CBBB}
+.cv-orb i{position:absolute;width:.18in;height:.18in;border-radius:50%}
+.cv-orb i:nth-child(1){background:#42CBBB;left:1.25in;top:.95in}.cv-orb i:nth-child(2){background:#7EA8FF;left:2.2in;top:1.05in}.cv-orb i:nth-child(3){background:#B39BFF;left:1.72in;top:1.75in}.cv-orb i:nth-child(4){background:#2E9E62;left:1.05in;top:2.3in}.cv-orb i:nth-child(5){background:#F2B550;left:2.45in;top:2.15in}
+.cv-foot{position:absolute;left:.6in;bottom:.3in;font-size:8pt;color:#8194AD}
+
+/* ---------- v4.4: evidence IDs, footer legend, operating model matrix ---------- */
+#status{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.statusbar > span{white-space:nowrap}
+.om-h{margin:10px 0 6px!important}
+.roles div{padding:6px 9px!important;gap:1px!important}
+.roles span{font-size:11.5px}
+.ecode{display:inline-grid;place-items:center;min-width:28px;height:22px;padding:0 6px;border-radius:6px;background:var(--surface-3);color:var(--ink);font-family:var(--mono);font-size:11.5px;font-weight:700;border:1px solid var(--line);flex:none}
+.ecode.sm{min-width:24px;height:18px;font-size:10.5px;padding:0 4px;vertical-align:1px}
+.card-top{gap:10px}
+.footleg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-2);white-space:nowrap}
+.footleg .tag{font-size:9.5px;padding:1px 5px;margin-left:6px}
+.footleg .tag:first-child{margin-left:0}
+.om-h{display:flex;align-items:center;gap:8px;margin:14px 0 8px;font-size:13.5px}
+.om-h span{width:20px;height:20px;border-radius:50%;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-size:11px;font-weight:700}
+.roles{grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:0}
+table.gm{font-size:12.5px}
+table.gm th{text-align:center;white-space:normal;padding:6px 4px;line-height:1.25}
+table.gm th b{display:block;font-family:var(--mono);color:var(--ink);font-size:12px}
+table.gm th span{font-weight:500;font-size:11px}
+table.gm th.lbl,table.gm td.lbl{text-align:left;width:200px;padding-left:12px}
+table.gm td{text-align:center;padding:6px 4px}
+table.gm i{display:inline-block;width:12px;height:12px;border-radius:50%}
+table.gm i.req{background:var(--teal)}
+table.gm i.skip{border:1.5px solid var(--line)}
+table.gm tr.oc-row td{background:var(--surface-2)}
+table.gm .oc{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--amber-soft);color:var(--amber);font-weight:700;font-size:12px}
+@media (max-width:1250px){.footleg{display:none}}
+.rp-leg{font-size:7.5pt;color:#44576F}
+.rp-leg b{font-size:7pt;letter-spacing:.04em;color:#13233A}
+.rp-h{display:flex;align-items:center;gap:6px;font-size:8.5pt;font-weight:700;letter-spacing:.05em;margin:0 0 .08in}
+.rp-h span{width:16px;height:16px;border-radius:50%;background:#DCF1EE;color:#0E7A70;display:grid;place-items:center;font-size:7.5pt}
+.gmr th{text-align:center;font-size:7pt}.gmr th span{font-weight:400}
+.gmr td.c{text-align:center;color:#0E7A70;font-size:10pt}
+
+/* ---------- v4.5: operating model as three paths ---------- */
+.lanes{display:grid;gap:8px}
+.lane{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.lane-h{display:flex;align-items:baseline;gap:10px;margin-bottom:8px;font-size:12.5px}
+.lane-h .tier{font-size:13px}
+.lane-n{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.steps-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+.stp{font-size:12.5px;padding:6px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);cursor:help;white-space:nowrap}
+.stp.blk{background:var(--red-soft);border-color:var(--red);color:var(--red);font-weight:600}
+.stp em{font-style:normal;display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:999px;background:var(--red);color:var(--on-accent);font-size:11px;margin-left:4px}
+.arr{color:var(--ink-3);font-size:12px}
+.lane-leg{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:8px}
+.lane-leg .sw{display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line);vertical-align:-1px;margin-right:5px}
+.lane-leg .sw.blk{background:var(--red-soft);border-color:var(--red)}
+.chg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chg div{border:1px solid var(--line);border-radius:10px;padding:9px 11px;display:grid;gap:3px;font-size:12.5px}
+.chg .now{color:var(--ink-3)} .chg .tgt{color:var(--teal)}
+@media (max-width:860px){.chg{grid-template-columns:1fr}}
+.rlanes{display:grid;gap:.08in}
+.rlanes .rc{padding:6px 12px}
+.rlanes .rc b{margin-bottom:2px}
+.rsteps{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:2px}
+.rs{display:inline-grid;font-size:8.5pt;padding:4px 8px;border-radius:6px;background:#F3F6FA;border:1px solid #D5DDE8;color:#13233A}
+.rs small{font-size:6.5pt;color:#687B93}
+.rs.blk{background:#FBE7E5;border-color:#D0544B;color:#A3322B;font-weight:700}
+.ra{color:#8A99AD;font-size:9pt}
+/* ---------- status bar ---------- */
+.statusbar{display:flex;align-items:center;gap:16px;padding:8px 20px;background:var(--surface);border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)}
+#status{color:var(--ink-2);font-size:12.5px;margin-right:auto}
+.statusbar a{color:var(--ink-2)}
+kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--ink-2)}
+
+/* ---------- responsive: release the fixed shell on small screens ---------- */
+@media (max-width:1180px){
+  .run{grid-template-columns:230px minmax(0,1fr)}
+  .run .tracepanel{grid-column:1 / -1;max-height:260px}
+  .run{height:auto} .view.v-run{height:auto;overflow:auto}
+  .context{display:none}
+}
+@media (max-width:980px){
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .road{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .app{height:auto;min-height:100%}
+  .view{height:auto}
+  .about,.results,.run{grid-template-columns:minmax(0,1fr);height:auto}
+  .subnav{flex-direction:row;overflow-x:auto}
+  .subnav button small,.subnav .foot{display:none}
+  .cards{grid-auto-rows:auto}
+  .qgrid,.principles,.tries,.scope,.io{grid-template-columns:minmax(0,1fr)}
+  .stepper{flex-direction:column;padding-bottom:10px}
+  .step{padding-right:14px}
+  .step small{display:none}
+  .actions{padding-left:0}
+  .statusbar .keys{display:none}
+  .brand small{display:none}
+  .scroll{overflow:visible}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .cards,.road{grid-template-columns:minmax(0,1fr)}
+  .score{grid-template-columns:minmax(0,1fr) 56px 76px}.score .bar{grid-column:1 / -1;grid-row:2}
+  .topbar{flex-wrap:wrap}
+  .tools{margin-left:0;width:100%;flex-wrap:wrap}
+  .pbtn{max-width:100%;overflow:hidden}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo" aria-hidden="true">AI</div><div><b>AI Governance Readiness Agents</b><small>AI Portfolio · Daniel Mazzini</small></div></div>
+    <div class="context" id="context" aria-label="Current run context"></div>
+    <div class="tools">
+      <div class="seg" role="radiogroup" aria-label="Provider" id="seg">
+        <button type="button" role="radio" data-p="demo" aria-checked="true">Demo</button>
+        <button type="button" role="radio" data-p="claude" aria-checked="false">Claude</button>
+        <button type="button" role="radio" data-p="openai" aria-checked="false">OpenAI</button>
+      </div>
+      <button class="pbtn" id="pbtn" type="button" aria-expanded="false" aria-controls="keybox"><i></i><span id="ptxt">No API key needed</span></button>
+      <button class="iconbtn" id="theme" type="button" aria-label="Switch to light theme"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    </div>
+    <div class="keypanel" id="keybox" hidden>
+      <h3 id="ktitle">Connect</h3>
+      <label>API key <input type="password" id="apikey" autocomplete="off" spellcheck="false"></label>
+      <label>Model <input id="model" autocomplete="off" spellcheck="false"></label>
+      <div class="row"><p class="fine">The key stays in this tab’s memory only and is sent only to the provider you picked.</p><button class="btn primary small" id="connect" type="button">Connect</button></div>
+      <p class="pmsg" id="pmsg" role="status" aria-live="polite"></p>
+    </div>
+  </header>
+
+  <nav class="stepper" aria-label="Demo steps">
+    <div class="steps" role="tablist">
+      <button class="step" role="tab" type="button" data-view="about" aria-selected="true" aria-controls="v-about"><span class="sn">1</span><span><b>About this demo</b><small id="s-about">What it shows and why</small></span></button>
+      <button class="step" role="tab" type="button" data-view="evidence" aria-selected="false" aria-controls="v-evidence"><span class="sn">2</span><span><b>Evidence sources</b><small id="s-evidence"></small></span></button>
+      <button class="step" role="tab" type="button" data-view="run" aria-selected="false" aria-controls="v-run"><span class="sn">3</span><span><b>Agent workflow</b><small id="s-run">Ready to run</small></span></button>
+      <button class="step" role="tab" type="button" data-view="results" aria-selected="false" aria-controls="v-results"><span class="sn">4</span><span><b>Assessment results</b><small id="s-results">After the run</small></span></button>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="runAll" type="button">Run assessment</button>
+      <button class="btn" id="step" type="button">Next agent</button>
+      <button class="btn" id="exportPdf" type="button" title="Available after the run">Export PDF</button>
+      <button class="btn quiet" id="reset" type="button">Reset</button>
+    </div>
+  </nav>
+
+  <main class="views">
+    <!-- 1. ABOUT -->
+    <section class="view" id="v-about" role="tabpanel" aria-label="About this demo">
+      <div class="about">
+        <div class="panel">
+          <div class="subnav" role="tablist" aria-label="About sections">
+            <button type="button" role="tab" data-pane="a1" aria-selected="true">What it is<small>The problem and the questions</small></button>
+            <button type="button" role="tab" data-pane="a2" aria-selected="false">How it works<small>Principles and the Governance Analyzer</small></button>
+            <button type="button" role="tab" data-pane="a3" aria-selected="false">Demo vs live AI<small>What’s real, keys and data</small></button>
+            <button type="button" role="tab" data-pane="a4" aria-selected="false">Presenting it<small>Talk tracks and key moments</small></button>
+            <div class="foot"><button class="btn primary small" type="button" data-go="evidence">Choose evidence</button></div>
+          </div>
+        </div>
+        <div class="panel"><div class="scroll pad">
+          <div class="apane" id="a1">
+            <h2>See the AI estate before you try to govern it</h2>
+            <p>This demo runs the first phase of the AI Governance Readiness service. The customer’s pre-work and existing evidence go through seven agents, the <strong>Governance Analyzer</strong>; a person reviews the critical calls; the outputs match the project deliverables.</p>
+            <h3>Three questions it answers</h3>
+            <div class="qgrid">
+              <div class="q"><b>What AI is actually in use?</b><span>Systems, sanctioned tools, personal accounts, IDE agents.</span></div>
+              <div class="q"><b>What code and data can leave?</b><span>Source code, keys, logs and player data reaching external AI.</span></div>
+              <div class="q"><b>What must be governed first?</b><span>What needs containment, an owner, or more evidence.</span></div>
+            </div>
+            <h3>How to read the results</h3>
+            <div class="legend">
+              <span><span class="tag fact">FACT</span> Confirmed by a specific evidence source</span>
+              <span><span class="tag assumption">ASSUMPTION</span> Likely, but needs confirmation</span>
+              <span><span class="tag unknown">UNKNOWN</span> Not yet known. Tracked with an owner, never treated as safe</span>
+            </div>
+            <div class="notice" style="margin-top:14px"><strong>Fictional scenario.</strong> Arenal Play and all evidence are synthetic. Not monitoring, certification or legal advice. Optional add-ons, scoped separately: technical discovery and assurance testing.</div>
+          </div>
+          <div class="apane" id="a2" hidden>
+            <h2>Evidence in, decisions out</h2>
+            <ol class="principles">
+              <li><span class="n">1</span><div><b>Evidence first</b><span>Every finding cites its source.</span></div></li>
+              <li><span class="n">2</span><div><b>Rules before the model</b><span>Rules find signals; the model classifies them.</span></div></li>
+              <li><span class="n">3</span><div><b>Agents propose, people decide</b><span>You confirm each critical and high condition.</span></div></li>
+              <li><span class="n">4</span><div><b>Unknowns stay visible</b><span>Each gets an owner and a due date.</span></div></li>
+            </ol>
+            <p style="margin-top:12px">Every condition follows one chain: <strong>FACT → EVIDENCE → OWNER → DECISION → NEXT GATE</strong>.</p>
+            <div class="table-wrap"><table>
+              <tr><th>Governance Analyzer agent</th><th>Produces</th><th>How</th></tr>
+              <tr><td>1. Evidence intake</td><td>Evidence register and coverage</td><td><span class="how rule">Deterministic</span></td></tr>
+              <tr><td>2. Shadow AI discovery</td><td>AI signals with source and basis</td><td><span class="how mix">Rules + model</span></td></tr>
+              <tr><td>3. Inventory and ownership</td><td>AI estate register, declared vs discovered</td><td><span class="how model">Model</span></td></tr>
+              <tr><td>4. Risk and conditions</td><td>Owned conditions with next gate</td><td><span class="how model">Model</span></td></tr>
+              <tr><td>5. Control mapping</td><td>Controls mapped to NIST AI RMF</td><td><span class="how model">Model</span></td></tr>
+              <tr><td>6. Governance review</td><td>Your rating and disposition</td><td><span class="how human">Human</span></td></tr>
+              <tr><td>7. Roadmap and scorecard</td><td>0–4 scorecard, roadmap, proposed disposition</td><td><span class="how mix">Model + rule</span></td></tr>
+            </table></div>
+          </div>
+          <div class="apane" id="a3" hidden>
+            <h2>Same workflow, pre-built or live</h2>
+            <div class="table-wrap"><table>
+              <tr><th>Step</th><th>Demo mode</th><th>Live mode (Claude or OpenAI)</th></tr>
+              <tr><td>Evidence</td><td>Synthetic samples</td><td>Same samples; only sources in scope are sent</td></tr>
+              <tr><td>Model-driven agents</td><td>Pre-built outputs</td><td>One validated JSON call per agent</td></tr>
+              <tr><td>Governance review</td><td>You decide</td><td>You decide</td></tr>
+              <tr><td>If a step fails</td><td>—</td><td>Falls back to pre-built output, clearly labeled</td></tr>
+            </table></div>
+            <h3>See exactly what the model sees</h3>
+            <p>On the Agent workflow tab, <strong>Prompt and response</strong> shows each agent’s prompt, guardrails, raw response and validation.</p>
+            <h3>Keys and data</h3>
+            <ul class="notlist">
+              <li>Your key stays in this tab’s memory and goes only to the provider you picked. Use one with a spending limit.</li>
+              <li>Synthetic data only. Never paste customer evidence.</li>
+              <li>Live mode needs the file opened locally or from a web host such as GitHub Pages.</li>
+            </ul>
+          </div>
+          <div class="apane" id="a4" hidden>
+            <h2>Walking a customer through it</h2>
+            <div class="table-wrap"><table>
+              <tr><th>Audience</th><th>Time</th><th>Path</th></tr>
+              <tr><td>Executive sponsor</td><td>5 min</td><td>Run, accept the review, walk Deliverables 01–06.</td></tr>
+              <tr><td>Mixed room</td><td>10 min</td><td>Show two evidence samples, step through agents, override one decision.</td></tr>
+              <tr><td>Engineering and security</td><td>20 min</td><td>Run live with Claude or OpenAI and open Prompt and response.</td></tr>
+            </table></div>
+            <h3>Three moments worth showing</h3>
+            <div class="tries">
+              <div class="try"><b>Declared vs discovered</b><span>Pre-work declared 5 AI assets; the evidence shows 13.</span></div>
+              <div class="try"><b>Pre-work example preset</b><span>Partial evidence turns facts into assumptions and adds UNKNOWNs.</span></div>
+              <div class="try"><b>Block / pause R1 too</b><span>The proposed disposition changes to “Remediate”.</span></div>
+            </div>
+            <p style="margin-top:12px"><kbd>1</kbd>–<kbd>4</kbd> switch tabs · <kbd>R</kbd> run · <kbd>N</kbd> next agent</p>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- 2. EVIDENCE -->
+    <section class="view" id="v-evidence" role="tabpanel" aria-label="Evidence sources" hidden>
+      <div class="evwrap">
+        <div class="vhead">
+          <div><h2>Evidence sources</h2><p>The customer’s pre-work plus nine kinds of evidence most organizations already hold. Mark each source available, partial or not available, as the pre-work evidence map does.</p></div>
+          <div class="right"><span class="muted" id="evcount"></span><button class="btn small" id="allSrc" type="button">All available</button><button class="btn small" id="pwSrc" type="button">Pre-work example</button><button class="btn small" id="minSrc" type="button">Minimum set</button></div>
+        </div>
+        <div class="evgrid"><div class="panel" id="prework"></div><div class="cards" id="cards"></div></div>
+      </div>
+    </section>
+
+    <!-- 3. RUN -->
+    <section class="view v-run" id="v-run" role="tabpanel" aria-label="Agent workflow" hidden>
+      <div class="run">
+        <div class="panel">
+          <div class="panel-h"><h3>Governance Analyzer</h3><small id="railcount">0 / 7</small></div>
+          <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+          <div class="scroll"><ol class="rail" id="rail"></ol></div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><div class="stage-h" id="stageh"></div></div>
+          <div class="scroll pad out" id="stage"></div>
+        </div>
+        <div class="panel tracepanel">
+          <div class="panel-h"><h3>Agent trace</h3><small id="clock">00:00</small></div>
+          <div class="scroll" id="tracebox"><ol id="trace"></ol></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. RESULTS -->
+    <section class="view" id="v-results" role="tabpanel" aria-label="Assessment results" hidden>
+      <div class="results" id="resultsWrap"></div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="status" role="status" aria-live="polite"></span>
+    <span class="footleg" aria-label="How to read the tags"><span class="tag fact" title="FACT: confirmed by a specific evidence source">FACT</span> confirmed <span class="tag assumption" title="ASSUMPTION: likely, but needs confirmation">ASSUMPTION</span> needs confirmation <span class="tag unknown" title="UNKNOWN: not yet known; tracked with an owner, never treated as safe">UNKNOWN</span> open, has an owner</span>
+    <span class="keys"><kbd>1</kbd>–<kbd>4</kbd> tabs · <kbd>R</kbd> run · <kbd>N</kbd> next</span>
+    <span>Fictional data · <a href="https://www.linkedin.com/in/daniel-mazzini-22059734/" target="_blank" rel="noopener">Daniel Mazzini</a> · AI Portfolio 2026</span>
+  </footer>
+</div>
+
+<div id="report" aria-hidden="true"></div>
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-labelledby="dr-t" role="dialog" aria-modal="true">
+  <div class="panel-h"><h3 id="dr-t"></h3><button class="btn small" id="drClose" type="button">Close</button></div>
+  <div class="scroll pad" id="drBody"></div>
+</aside>
+<script>
+(function(){
+"use strict";
+
+/* ================= SYNTHETIC EVIDENCE ================= */
+const ICONS = {
+  identity:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/>',
+  survey:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h4"/>',
+  code:'<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/>',
+  network:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  saas:'<path d="M7 18h10a4 4 0 0 0 0-8 6 6 0 0 0-11.5 1.5A3.5 3.5 0 0 0 7 18z"/><path d="M10 14h4"/>',
+  billing:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+  endpoint:'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',
+  contract:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h4"/>',
+  policy:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
+  ,workbook:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 3v18"/>'
+};
+
+const SOURCES = [
+  {id:"prework", fixed:true, cat:"Pre-work", icon:"workbook", color:"teal", name:"Customer pre-work workbook", owner:"Executive sponsor", stat:"5", unit:"AI assets declared by the customer",
+   proves:"What leadership knows and believes, plus current controls", blind:"Anything nobody thought to declare",
+   raw:`PRE-WORK WORKBOOK (customer-declared, illustrative)
+Scope and decision
+  Sponsor:    CIO / CTO
+  In scope:   Engineering, Product, Customer Operations, Risk Operations, Marketing
+  Driver:     AI use is growing without a common ownership and control baseline
+  Decision:   Approve the minimum governance model and immediate control priorities
+  Exclusions: Enterprise-wide exhaustive discovery; control implementation
+Declared AI initiatives
+  Customer Support Assistant     Customer Operations  GenAI/RAG       Pilot
+  Fraud Investigation Assistant  Risk Operations      OpenAI API      PoC
+  Marketing Content Generator    Marketing            ChatGPT         Production
+  Developer Coding Assistant     Engineering          GitHub Copilot  Production
+Declared developer AI tools
+  GitHub Copilot (enterprise, 42 seats), ChatGPT Enterprise (18 seats)
+Current controls (as operated today)
+  AI registration:          no enterprise register
+  Ownership:                varies by team; business risk owner not consistently named
+  Risk tiering:             no common AI-specific method
+  Security/privacy review:  existing reviews reused inconsistently
+  Vendor/model review:      tool-by-tool; AI data-use terms not always explicit
+  Production/change gate:   project-specific, not standardized
+Known UNKNOWNs
+  Personal GenAI accounts touching company code/data  -> Security / IAM
+  AI API keys outside central secrets management      -> Cloud Platform`},
+  {id:"sso", cat:"Identity", icon:"identity", color:"blue", name:"Identity provider export", owner:"Identity team", stat:"88", unit:"AI app assignments across 4 apps",
+   proves:"Which AI tools are sanctioned and who has access", blind:"Personal accounts and tools outside single sign-on",
+   raw:`app_name,assigned_users,sso,owner_group
+GitHub Copilot Business,42,yes,eng-enablement
+ChatGPT Enterprise,18,yes,it-workplace
+Microsoft 365 Copilot (pilot),20,yes,it-workplace
+KYC-Scan Pro,8,yes,it-applications`},
+  {id:"survey", cat:"People", icon:"survey", color:"violet", name:"Developer AI survey", owner:"Engineering managers", stat:"38", unit:"responses, self-reported",
+   proves:"Real day-to-day behavior and projects nobody registered", blind:"Counts are self-reported, not measured",
+   raw:`Which AI tools do you use for work? (n=38)
+  GitHub Copilot ............ 31
+  ChatGPT (personal) ........ 11
+  Claude / Claude Code ......  7
+  Cursor ....................  5
+Pasted code into a non-approved AI tool, last 30 days?  yes 9
+Pasted logs that may include player data?               yes 3
+Other AI projects you know about?
+  "RG early-warning notebook" (2 mentions)`},
+  {id:"git", cat:"Code", icon:"code", color:"teal", name:"Repository scan", owner:"Developer Platform", stat:"42", unit:"repositories indexed",
+   proves:"AI SDKs, committed keys and agent configs in code", blind:"Code outside the company’s Git platform",
+   raw:`repo                        path                       signal
+customer-support-assistant  src/llm.py                 import openai
+fraud-investigation         notebooks/triage.py        import openai
+promo-engine                config/settings.py@a91f3c  OPENAI_API_KEY="sk-****"
+dev-tools                   .vscode/mcp.json           postgres-mcp -> replica-prod
+dev-tools                   .claude/settings.json      Claude Code project config`},
+  {id:"proxy", cat:"Network", icon:"network", color:"blue", name:"Proxy and DNS log sample", owner:"Security Operations", stat:"7", unit:"days across 3 subnets",
+   proves:"Where AI traffic goes and from which hosts", blind:"Cannot tell personal from enterprise accounts",
+   raw:`domain                      requests  hosts  subnet
+api.openai.com                 3,410      3  app-servers
+chat.openai.com                  930     11  engineering
+claude.ai                        310      7  engineering
+api.anthropic.com                 95      2  engineering
+api.freellm-proxy.example         87      2  engineering`},
+  {id:"casb", cat:"SaaS", icon:"saas", color:"amber", name:"SaaS discovery (CASB) report", owner:"Security Operations", stat:"12", unit:"AI apps observed, 9 unsanctioned",
+   proves:"Unsanctioned AI apps in use and file uploads to them", blind:"Traffic that bypasses the corporate proxy",
+   raw:`app                     category          users  sanctioned  uploads(7d)
+ChatGPT (personal)      GenAI chat           11  no               148
+Claude                  GenAI chat            7  no                41
+Gemini                  GenAI chat            3  no                 9
+DeepL                   AI translation        9  no                14
+ChatGPT Enterprise      GenAI chat           18  yes                -
+GitHub Copilot          Developer AI         42  yes                -
+Microsoft 365 Copilot   Productivity AI      20  yes                -
++ 5 low-volume unsanctioned apps`},
+  {id:"cloud", cat:"Cloud", icon:"billing", color:"teal", name:"Cloud billing and expenses", owner:"Cloud Platform", stat:"3", unit:"AI spend lines found",
+   proves:"AI workloads someone is paying for, registered or not", blind:"Free tiers and personal spending",
+   raw:`account / source   service                          30-day cost  owner tag
+sandbox-ml         Amazon Bedrock                        $1,140  <none>
+sandbox-ml         SageMaker notebook                      $310  <none>
+expense reports    ChatGPT Plus x3 (corporate card)         $60  marketing`},
+  {id:"endpoint", cat:"Endpoint", icon:"endpoint", color:"violet", name:"IDE extension inventory", owner:"Endpoint Engineering", stat:"64", unit:"developer laptops scanned",
+   proves:"AI coding assistants and agents installed on laptops", blind:"Unmanaged and personal devices",
+   raw:`extension / app            installs  managed  capability
+GitHub Copilot (VS Code)        42  yes      completion, chat
+Claude Code (CLI)                7  no       agent: edits files, runs commands
+Cursor (desktop app)             5  no       AI IDE with agent mode
+Cline (VS Code)                  3  no       agent: edits files, runs commands`},
+  {id:"vendor", cat:"Contracts", icon:"contract", color:"amber", name:"Vendor and contract register", owner:"Procurement", stat:"14", unit:"vendors, 3 with AI features",
+   proves:"Whether AI data-use terms exist for each vendor", blind:"Features vendors switched on without notice",
+   raw:`vendor          AI features in use      DPA   AI data-use clause  last review
+KYC-Scan Pro    ID + liveness models    yes   no                  2023-11
+HelpDeskOne     reply suggestions       yes   yes                 2025-06
+MailBlast       subject-line AI         no    no                  never
++ 11 vendors with no AI features declared`},
+  {id:"policy", cat:"Governance", icon:"policy", color:"blue", name:"Policies and approval records", owner:"PMO / Governance", stat:"0", unit:"AI changes approved in 12 months",
+   proves:"Whether rules and approval gates for AI exist", blind:"Informal approvals that were never recorded",
+   raw:`document                          version  status     mentions AI
+Acceptable Use Policy             2022.1   approved   no
+Information Classification Std    2021.3   approved   no
+GenAI Guidelines                  0.3      draft      yes (unpublished)
+Change records, last 12 months: 1,204 total, 0 tagged as AI system changes
+Architecture review intake form: no AI questions`}
+];
+SOURCES.forEach((s,i) => { s.code = s.fixed ? "PW" : "E" + i; });   /* PW = pre-work, E1–E9 = evidence */
+const SRC = Object.fromEntries(SOURCES.map(s=>[s.id,s]));
+const TAG_DEF = {
+  fact:"FACT: confirmed by a specific evidence source",
+  assumption:"ASSUMPTION: likely, but needs confirmation",
+  unknown:"UNKNOWN: not yet known; tracked with an owner, never treated as safe"
+};
+const CARD_SOURCES = SOURCES.filter(s=>!s.fixed);
+const PRESETS = {
+  all: Object.fromEntries(SOURCES.map(s=>[s.id,"available"])),
+  prework: Object.fromEntries(SOURCES.map(s=>[s.id, {proxy:"partial", casb:"partial", cloud:"none"}[s.id] || "available"])),
+  minimum: Object.fromEntries(SOURCES.map(s=>[s.id, ["prework","sso","survey","git"].includes(s.id) ? "available" : "none"]))
+};
+const SCOPE = {
+  sponsor:"CIO / CTO",
+  scope:"Engineering, Product, Customer Operations, Risk Operations, Marketing",
+  driver:"AI use is growing without a common ownership and control baseline",
+  decision:"Approve the minimum governance model and immediate control priorities",
+  exclusions:"Enterprise-wide exhaustive discovery; control implementation"
+};
+const DECLARED = ["Customer Support Assistant","Fraud Investigation Assistant","Marketing Content Generator","Developer Coding Assistant","ChatGPT Enterprise"];
+
+/* ================= PRE-BUILT (DEMO) OUTPUTS ================= */
+const FINDINGS = [
+  {sig:"OpenAI SDK in the support assistant", where:"customer-support-assistant/src/llm.py", srcs:["git"], p:"fact", note:"Declared initiative, confirmed in code"},
+  {sig:"OpenAI SDK in a fraud notebook", where:"fraud-investigation/notebooks/triage.py", srcs:["git"], p:"fact", note:"Data path to the API not documented"},
+  {sig:"API key pattern committed to a repository", where:"promo-engine/config/settings.py (a91f3c)", srcs:["git"], p:"fact", note:"Whether the key is active is unknown"},
+  {sig:"MCP server config targeting a production database", where:"dev-tools/.vscode/mcp.json", srcs:["git"], p:"fact", note:"Agent tool access to replica-prod"},
+  {sig:"Claude Code project config in a repository", where:"dev-tools/.claude/settings.json", srcs:["git"], p:"fact", note:"Tool not declared in pre-work"},
+  {sig:"Personal ChatGPT and Claude used for work", where:"11 and 7 respondents", srcs:["survey"], p:"fact", note:"Self-reported"},
+  {sig:"1,240 requests to consumer AI domains", where:"engineering subnet, 18 hosts", srcs:["proxy"], p:"fact", note:"Account type unknown"},
+  {sig:"9 unsanctioned AI apps, 212 file uploads in 7 days", where:"ChatGPT (personal), Claude, Gemini, DeepL and others", srcs:["casb"], p:"fact", note:"Upload content not inspected"},
+  {sig:"Cursor used with no SSO record", where:"5 laptops, 5 respondents", srcs:["survey","sso","endpoint"], p:"assumption", note:"Likely unsanctioned"},
+  {sig:"Agentic coding tools that run commands", where:"Claude Code on 7 laptops, Cline on 3", srcs:["endpoint"], p:"fact", note:"Unmanaged installs"},
+  {sig:"Untagged AI workloads in a sandbox account", where:"sandbox-ml: Bedrock, SageMaker", srcs:["cloud"], p:"fact", note:"No owner tag"},
+  {sig:"ChatGPT Plus paid on a corporate card", where:"Expense reports, Marketing", srcs:["cloud"], p:"fact", note:"Marketing may not use the enterprise account"},
+  {sig:"Vendor contracts lack AI data-use terms", where:"KYC-Scan Pro, MailBlast", srcs:["vendor"], p:"fact", note:"MailBlast has no DPA at all"},
+  {sig:"No AI rules or approval records", where:"AUP 2022, GenAI guidelines in draft", srcs:["policy"], p:"fact", note:"0 AI change records in 12 months"},
+  {sig:"Traffic to an unrecognized AI endpoint", where:"api.freellm-proxy.example, 2 hosts", srcs:["proxy"], p:"unknown", note:"Service and data sent not identified"}
+];
+
+/* owner: string = confirmed, "~text" = assumption, null = unknown.
+   kind: initiative | tool · cls: data classification · tier: governance tier · ext: data reaches an external AI provider */
+const INVENTORY = [
+  {name:"Customer Support Assistant", kind:"initiative", stage:"Pilot", tool:"GenAI/RAG on OpenAI API", biz:"Customer Operations", tech:null, data:"Player conversations, account and bonus history", cls:"Restricted", tier:"High", ext:true, declared:true, status:"Owner named · technical owner missing", p:"fact", srcs:["git","proxy","prework"]},
+  {name:"Fraud Investigation Assistant", kind:"initiative", stage:"PoC", tool:"OpenAI API", biz:"Risk Operations", tech:"~Fraud analytics team", data:"Alerts, analyst notes, payment data", cls:"Restricted", tier:"High", ext:true, declared:true, status:"Data path UNKNOWN", p:"fact", srcs:["git","prework"]},
+  {name:"Marketing Content Generator", kind:"initiative", stage:"Production", tool:"ChatGPT", biz:"Marketing", tech:null, data:"Campaign content", cls:"Internal", tier:"Low", ext:true, declared:true, status:"Account model UNKNOWN", p:"fact", srcs:["cloud","casb","prework"]},
+  {name:"Developer Coding Assistant", kind:"tool", stage:"Production", tool:"GitHub Copilot, 42 developers", biz:"Engineering", tech:"Engineering Enablement", data:"Source code", cls:"Confidential", tier:"Medium", ext:true, declared:true, status:"Approved tool · policy incomplete", p:"fact", srcs:["sso","endpoint","prework"]},
+  {name:"ChatGPT Enterprise", kind:"tool", stage:"Production", tool:"OpenAI, 18 users", biz:"IT", tech:"IT Workplace", data:"Business data", cls:"Confidential", tier:"Medium", ext:true, declared:true, status:"Sanctioned · usage rules unpublished", p:"fact", srcs:["sso","casb","prework"]},
+  {name:"Microsoft 365 Copilot", kind:"tool", stage:"Pilot", tool:"Microsoft, 20 users", biz:"IT", tech:"IT Workplace", data:"Email, documents, chats", cls:"Confidential", tier:"Medium", ext:false, declared:false, status:"Pilot · not in pre-work", p:"fact", srcs:["sso","casb"]},
+  {name:"KYC document assist", kind:"initiative", stage:"Production", tool:"KYC-Scan Pro (vendor)", biz:"Compliance", tech:"IT Applications", data:"ID documents, selfies", cls:"Restricted", tier:"High", ext:true, declared:false, status:"Vendor AI terms missing", p:"fact", srcs:["sso","vendor"]},
+  {name:"Responsible-gambling early warning", kind:"initiative", stage:"Unconfirmed", tool:"Notebook, runtime unknown", biz:null, tech:null, data:"Not identified", cls:"Unknown", tier:"High", ext:false, declared:false, status:"Existence UNKNOWN", p:"unknown", srcs:["survey"]},
+  {name:"Personal ChatGPT", kind:"tool", stage:"Unsanctioned", tool:"OpenAI consumer, 11 users", biz:null, tech:null, data:"Source code, logs (self-reported)", cls:"Unknown", tier:"High", ext:true, declared:false, status:"Unmanaged", p:"fact", srcs:["survey","proxy","casb"]},
+  {name:"Claude / Claude Code", kind:"tool", stage:"Unsanctioned", tool:"Anthropic, 7 users", biz:null, tech:null, data:"Source code possible", cls:"Unknown", tier:"High", ext:true, declared:false, status:"Account ownership UNKNOWN", p:"fact", srcs:["survey","casb","endpoint","git"]},
+  {name:"Community Postgres MCP server", kind:"tool", stage:"Unsanctioned", tool:"Open-source MCP server", biz:null, tech:"~dev-tools committer", data:"Production read replica", cls:"Restricted", tier:"High", ext:false, declared:false, status:"Unapproved agent connection", p:"fact", srcs:["git"]},
+  {name:"Sandbox AI workloads", kind:"initiative", stage:"Unknown", tool:"Amazon Bedrock, SageMaker", biz:null, tech:null, data:"Not identified", cls:"Unknown", tier:"Medium", ext:false, declared:false, status:"No owner tag", p:"fact", srcs:["cloud"]},
+  {name:"Agentic IDE tools", kind:"tool", stage:"Unsanctioned", tool:"Cursor, Cline", biz:null, tech:null, data:"Source code, local credentials", cls:"Confidential", tier:"High", ext:true, declared:false, status:"Unmanaged installs", p:"fact", srcs:["endpoint","survey"]}
+];
+
+/* developer AI / shadow AI view (deliverable 03) */
+const DEVTOOLS = [
+  {name:"GitHub Copilot", users:"42 developers", status:"Sanctioned", data:"Source code", risk:"Moderate", srcs:["sso","endpoint"]},
+  {name:"ChatGPT Enterprise", users:"18 users", status:"Sanctioned", data:"Business data", risk:"Moderate", srcs:["sso","casb"]},
+  {name:"Personal ChatGPT", users:"11 users", status:"Unknown", data:"UNKNOWN", risk:"High", srcs:["survey","casb","proxy"]},
+  {name:"Claude / Claude Code", users:"7 users", status:"Unknown", data:"Source code possible", risk:"Elevated", srcs:["survey","casb","endpoint"]},
+  {name:"Cursor", users:"5 users", status:"Unknown", data:"Source code", risk:"Elevated", srcs:["survey","endpoint"]},
+  {name:"Cline agent extension", users:"3 laptops", status:"Unmanaged", data:"Source code, terminal", risk:"High", srcs:["endpoint"]},
+  {name:"Community Postgres MCP server", users:"dev-tools repo", status:"Unsanctioned", data:"Production replica", risk:"High", srcs:["git"]}
+];
+
+/* conditions: risk event (title) · owner · required condition · disposition · next gate */
+const RISKS = [
+  {id:"R1", sev:"critical", cat:"Security, secrets", title:"API key committed to the promo-engine repository", why:"A string matching the provider key format sits in config/settings.py at commit a91f3c.", p:"fact", unk:"Whether the key is active and what it was used for", res:"Provider key usage logs and a git history scan", owner:"VP Engineering", cond:"Key revoked and rotated, with secret scanning in CI, before the next release", disp:"remediate", gate:"G3", srcs:["git"]},
+  {id:"R2", sev:"critical", cat:"Autonomy, data access", title:"AI tooling wired to the production database replica through MCP", why:"dev-tools/.vscode/mcp.json connects a community Postgres MCP server to replica-prod, so connected coding agents can query production data.", p:"fact", unk:"Which developers and agents used it, and what they queried", res:"MCP server and replica access logs", owner:"VP Engineering", cond:"Human approval, kill switch and tool permission boundary before any agent touches production data", disp:"block", gate:"G3", srcs:["git"]},
+  {id:"R3", sev:"high", cat:"Data, accountability", title:"Customer Support Assistant handles player data with no technical owner", why:"Code sends support conversations to an external model API. A business owner is named; no technical owner or data-flow record exists.", p:"fact", unk:"Retention and data-use terms on the API account", res:"API account settings and a data-flow diagram", owner:"Customer Operations + Engineering", cond:"Named technical owner and documented data path before production", disp:"remediate", gate:"G2", srcs:["git"]},
+  {id:"R4", sev:"high", cat:"Data leakage", title:"Personal or unmanaged GenAI use cannot be ruled out for source code", why:[{s:"survey",t:"9 of 38 developers report pasting code into non-approved tools, and 3 report pasting logs that may hold player data."},{s:"proxy",t:"The proxy shows 1,240 requests to consumer AI domains from engineering."},{s:"casb",t:"The CASB shows 212 file uploads to unsanctioned AI apps in 7 days."}], p:"fact", unk:"What the uploaded content contained and which accounts were personal", res:"CASB content classes and IAM personal-account signals", owner:"CISO / Engineering", cond:"Sanctioned-tool standard plus targeted discovery evidence", disp:"remediate", gate:"G0", srcs:["survey","proxy","casb"]},
+  {id:"R5", sev:"high", cat:"Accountability, player impact", title:"Responsible-gambling model with no owner or known data", why:"Two survey responses mention it. No repository, owner or data lineage was found, and it was not declared in pre-work.", p:"unknown", unk:"Whether it exists and whether it influences how players are treated", res:"Owner attestation and the notebook location", owner:"Executive sponsor", cond:"Confirm existence, name an owner and complete an impact review before any player-facing use", disp:"assure", gate:"G1", srcs:["survey"]},
+  {id:"R6", sev:"high", cat:"Third-party AI", title:"KYC vendor processes ID documents without AI data-use terms", why:"KYC-Scan Pro has a DPA but no AI data-use clause, last reviewed 2023-11. MailBlast uses AI features with no DPA.", p:"fact", unk:"Whether either vendor retains or trains on submitted data", res:"Vendor contracts and DPAs", owner:"Procurement + Compliance", cond:"AI data-use clause and DPA review before renewal or enabling new AI features", disp:"remediate", gate:"G2", srcs:["vendor"]},
+  {id:"R7", sev:"high", cat:"Autonomy, endpoint", title:"Unmanaged coding agents can run commands on developer laptops", why:"Claude Code and Cline are installed on 10 unmanaged setups and can edit files and run terminal commands. Combined with R2, an agent could reach production data.", p:"fact", unk:"Which models these agents send code to", res:"Endpoint management policy report", owner:"Endpoint Engineering + DevSecOps", cond:"Allow-listed agent tools with approved permission boundaries", disp:"remediate", gate:"G3", srcs:["endpoint"]},
+  {id:"R8", sev:"high", cat:"Lifecycle, ownership", title:"Several AI initiatives lack an accountable owner or approval gate", why:"There is no enterprise AI register, the GenAI guidelines are an unpublished draft, and no AI change has been approved in 12 months.", p:"fact", unk:"Whether informal approvals happened", res:"Change records and architecture intake forms", owner:"CIO / CTO", cond:"Federated AI register plus owner attestation and a tiered intake gate", disp:"remediate", gate:"G0", srcs:["policy"]},
+  {id:"R9", sev:"high", cat:"Data, decision accountability", title:"Fraud Investigation Assistant sends analyst notes to an external API", why:"The fraud notebook calls the OpenAI API with alert and analyst data, and the path of that data is not documented.", p:"fact", unk:"Which fields leave, and who makes the final fraud decision", res:"Notebook review and the fraud decision procedure", owner:"Risk Operations", cond:"Accountable human decision and a documented evidence path before production", disp:"assure", gate:"G2", srcs:["git"]},
+  {id:"R10", sev:"medium", cat:"Visibility, cost", title:"AI workloads running in an untagged sandbox account", why:"sandbox-ml shows $1,450 of Bedrock and SageMaker spend in 30 days with no owner tag.", p:"fact", unk:"What data these workloads use", res:"Cloud tagging report and workload owners", owner:"Cloud Platform", cond:"Owner tags enforced and workloads registered", disp:"remediate", gate:"G0", srcs:["cloud"]},
+  {id:"R11", sev:"medium", cat:"Shadow AI", title:"Traffic to an unrecognized AI endpoint", why:"87 requests to api.freellm-proxy.example from two engineering hosts over 7 days.", p:"fact", unk:"Service identity and data sent", res:"Host investigation and proxy payload metadata", owner:"Security Operations", cond:"Service identified, then blocked or sanctioned", disp:"remediate", gate:"G0", srcs:["proxy"]}
+];
+
+const CONTROLS = [
+  {r:"R1", fn:"Manage", ctl:"Revoke and rotate the key; add secret scanning to pre-commit and CI", type:"Technical"},
+  {r:"R2", fn:"Govern, Manage", ctl:"Remove the config; approved MCP server list; least-privilege, non-production data for agents", type:"Technical + policy"},
+  {r:"R3", fn:"Govern, Map", ctl:"Name a technical owner; document data flows and retention", type:"Process"},
+  {r:"R4", fn:"Govern, Manage", ctl:"Sanctioned-tool standard; enterprise accounts through SSO; CASB policy for unsanctioned AI apps", type:"Policy + technical"},
+  {r:"R5", fn:"Govern, Map", ctl:"Owner attestation; impact review before player-facing use", type:"Process"},
+  {r:"R6", fn:"Govern, Map", ctl:"AI data-use clauses; DPA required before AI features are enabled", type:"Process"},
+  {r:"R7", fn:"Govern, Manage", ctl:"Allow-list IDE extensions and agent tools through endpoint management", type:"Technical + policy"},
+  {r:"R8", fn:"Govern", ctl:"Federated AI register, owner attestation and tiered intake", type:"Policy + process"},
+  {r:"R9", fn:"Map, Measure", ctl:"Document the data path; keep a human accountable for fraud decisions", type:"Process"},
+  {r:"R10", fn:"Map, Measure", ctl:"Enforce owner tags on AI services; register sandbox workloads", type:"Technical"},
+  {r:"R11", fn:"Measure", ctl:"Identify the service; block or sanction it; add to the AI domain watchlist", type:"Technical"}
+];
+
+/* readiness scale 0–4 and the kit's seven domains */
+const SCALE = ["Absent","Emerging","Defined","Managed","Assured"];
+const SCALE_DEF = [
+  "No practice or evidence",
+  "Ad hoc; depends on individuals",
+  "Documented, not applied consistently",
+  "Applied consistently, with owners and evidence",
+  "Measured, tested and independently verified"
+];
+const DIMS = [
+  {d:"AI inventory and ownership", s:1, why:"No enterprise register; ownership varies by team", srcs:["prework","sso","git","proxy","casb","cloud"]},
+  {d:"Developer AI and acceptable use", s:2, why:"Copilot and ChatGPT Enterprise sanctioned through SSO; usage rules unpublished", srcs:["sso","endpoint","survey","casb"]},
+  {d:"Risk and impact", s:0, why:"No AI-specific tiering or impact method", srcs:["prework","policy"]},
+  {d:"Data and privacy", s:2, why:"Classification standard and DPAs exist, but predate GenAI", srcs:["git","proxy","casb","survey"]},
+  {d:"Security", s:3, why:"Identity, endpoint and network monitoring are managed and surfaced these findings; AI-specific controls lag", srcs:["git","endpoint","proxy"]},
+  {d:"Third-party AI", s:1, why:"Vendor review is tool-by-tool; AI data-use clauses missing", srcs:["vendor","sso"]},
+  {d:"Lifecycle and assurance", s:1, why:"A change process exists, but has no AI-specific gates", srcs:["policy","prework"]}
+];
+
+/* current-state controls (pre-work 05) */
+const CURRENT = [
+  {c:"AI intake and registration", now:"No enterprise register", target:"Federated register with owner attestation"},
+  {c:"Named business and technical ownership", now:"Varies by team", target:"Both owners named for every entry"},
+  {c:"Risk and impact classification", now:"No common AI-specific method", target:"Three-tier method at the Classify risk step"},
+  {c:"Security and privacy review", now:"Reused inconsistently", target:"AI-specific checks at the data and security steps"},
+  {c:"Vendor and model review", now:"Tool-by-tool, AI terms not explicit", target:"AI data-use clause required"},
+  {c:"Production approval and change", now:"Project-specific", target:"Go live and Review changes steps"}
+];
+const GATES = [["G0","Intake"],["G1","Risk tier"],["G2","Design / data"],["G3","Security / eval"],["G4","Production"],["G5","Change"],["G6","Recertify"],["G7","Retire"]];
+const STEP = {
+  G0:{n:"Register", who:"AI governance and the business owner"},
+  G1:{n:"Classify risk", who:"AI governance"},
+  G2:{n:"Check data", who:"Security / data and engineering"},
+  G3:{n:"Check security", who:"Security / data"},
+  G4:{n:"Go live", who:"AI governance; executive sponsor for high risk"},
+  G5:{n:"Review changes", who:"AI governance"},
+  G6:{n:"Re-approve yearly", who:"Business owner and AI governance"},
+  G7:{n:"Retire safely", who:"Business owner"}
+};
+const LANE = {
+  Low:{label:"Low risk", why:"internal data only"},
+  Medium:{label:"Medium risk", why:"company data, sanctioned tools"},
+  High:{label:"High risk", why:"player data, restricted data or AI agents"}
+};
+const TIER_PATH = {Low:["G0","G1","G4"], Medium:["G0","G1","G2","G3","G4","G5"], High:["G0","G1","G2","G3","G4","G5","G6","G7"]};
+const ROLES = [
+  ["Executive sponsor","Risk appetite and exceptions"],["AI governance","Tiering and gate decisions"],["Business owner","Outcome and acceptable use"],
+  ["Security / data","Data, identity and threat controls"],["Engineering","Design and technical evidence"]
+];
+
+/* roadmap (b = 0:0–30 · 1:31–60 · 2:61–90 · 3:91–180) aligned to the kit's themes */
+const ROAD = [
+  {t:"Revoke and rotate the committed key; turn on secret scanning", r:"R1", b:0, o:"VP Engineering"},
+  {t:"Remove the production MCP config; freeze new MCP servers", r:"R2", b:0, o:"VP Engineering"},
+  {t:"Block unmanaged agent tools through endpoint policy", r:"R7", b:0, o:"Endpoint Engineering"},
+  {t:"Publish an interim sanctioned developer-tool list", r:"R4", b:0, o:"CISO"},
+  {t:"Stand up the AI register and collect owner attestations", r:"R8", b:0, o:"CIO / CTO"},
+  {t:"Name a technical owner and map the support assistant data path", r:"R3", b:1, o:"Customer Operations + Engineering"},
+  {t:"Developer AI standard and enterprise accounts through SSO", r:"R4", b:1, o:"CISO / IT"},
+  {t:"Risk tiering method and approval workflow", r:"R8", b:1, o:"AI governance lead"},
+  {t:"Third-party AI rules and KYC vendor AI clause", r:"R6", b:1, o:"Procurement + Compliance"},
+  {t:"Identify and block or sanction the unrecognized endpoint", r:"R11", b:1, o:"Security Operations"},
+  {t:"Lifecycle gates G2–G5 live for high-tier AI", r:"R8", b:2, o:"AI governance lead"},
+  {t:"Security and data standard for AI, including MCP catalog", r:"R2", b:2, o:"Security / Data"},
+  {t:"Document the fraud decision and evidence path", r:"R9", b:2, o:"Risk Operations"},
+  {t:"Enforce owner tags on AI cloud services", r:"R10", b:2, o:"Cloud Platform"},
+  {t:"Impact review for the responsible-gambling model", r:"R5", b:3, o:"Executive sponsor + Compliance"},
+  {t:"Discovery automation and evidence dashboard", r:null, b:3, o:"Security Operations"},
+  {t:"Reassessment and recertification cadence (G6)", r:null, b:3, o:"AI governance lead"}
+];
+const LEADERSHIP = [
+  "Approve immediate conditions: rotate the committed key and pause agent access to production data until a permission boundary exists.",
+  "Mandate a federated AI register with a named business and technical owner for every AI asset.",
+  "Adopt a sanctioned developer-AI standard with enterprise accounts, and use targeted discovery only where UNKNOWNs change the control design."
+];
+const BUCKETS = ["0–30 days","31–60 days","61–90 days","91–180 days"];
+const DISP = {remediate:"Remediate", assure:"Assure", block:"Block / pause", accept:"Accept"};
+
+const AGENTS = [
+  {id:"intake", name:"Evidence intake", role:"Reads scope, pre-work and evidence coverage", tab:"Evidence", how:["rule","Deterministic"]},
+  {id:"discovery", name:"Shadow AI discovery", role:"Finds AI tools, SDKs, keys and agent configs", tab:"Discovery", how:["mix","Rules + model"]},
+  {id:"inventory", name:"Inventory and ownership", role:"Builds the register, compares it with pre-work", tab:"Inventory", how:["model","Model"]},
+  {id:"risk", name:"Risk and conditions", role:"Owner, required condition, disposition, next gate", tab:"Risks", how:["model","Model"]},
+  {id:"controls", name:"Control mapping", role:"Maps each condition to a control", tab:"Controls", how:["model","Model"]},
+  {id:"gate", name:"Governance review", role:"You confirm ratings and dispositions", tab:"Review", how:["human","Human"], human:true},
+  {id:"roadmap", name:"Roadmap and scorecard", role:"0–4 readiness, roadmap, executive disposition", tab:"Roadmap", how:["mix","Model + rule"]}
+];
+
+/* ================= STATE + HELPERS ================= */
+const prov = {name:"demo", key:{claude:"",openai:""}, model:{claude:"claude-sonnet-5-5", openai:"gpt-4.1-mini"}, connected:{claude:false,openai:false}};
+const LABEL = {demo:"Demo", claude:"Claude", openai:"OpenAI"};
+let avail = {...PRESETS.all};
+let included = new Set(), partial = new Set();
+function syncScope(){
+  included = new Set(SOURCES.filter(s=>avail[s.id] !== "none").map(s=>s.id));
+  partial = new Set(SOURCES.filter(s=>avail[s.id] === "partial").map(s=>s.id));
+}
+syncScope();
+let state, t0 = null, clockTimer = null;
+function fresh(){ return {next:0, busy:false, auto:false, waiting:false, locked:false, done:{}, active:null, decisions:{}, disp:{}, pending:{}, pendingRate:{}, fallback:{}, live:{}, out:{}, io:{}, view:null, runProvider:"demo"}; }
+state = fresh();
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const tag = p => `<span class="tag ${p}" title="${TAG_DEF[p]||""}">${p.toUpperCase()}</span>`;
+const owner = v => !v ? `${tag("unknown")} <span class="muted">Not identified</span>` : String(v).startsWith("~") ? `${esc(String(v).slice(1))} ${tag("assumption")}` : esc(v);
+const chips = srcs => (srcs && srcs.length) ? `<div class="chips">${srcs.map(s=>`<span class="chip${partial.has(s)?" part":""}">${esc(SRC[s] ? `${SRC[s].code} ${SRC[s].cat}` : s)}${partial.has(s)?" (partial)":""}</span>`).join("")}</div>` : "";
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const pace = reduce ? 90 : 280;
+const inScope = srcs => srcs.some(s => included.has(s));
+const whyText = r => Array.isArray(r.why) ? r.why.filter(x=>included.has(x.s)).map(x=>x.t).join(" ") : r.why;
+/* a FACT resting only on partial evidence is downgraded to ASSUMPTION */
+const basis = (p, srcs) => (p === "fact" && srcs.filter(s=>included.has(s)).length && srcs.filter(s=>included.has(s)).every(s=>partial.has(s))) ? "assumption" : p;
+
+function elapsed(){ if(!t0) return "00:00"; const s = Math.floor((Date.now()-t0)/1000); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function startClock(){ if(!t0){ t0 = Date.now(); clockTimer = setInterval(()=>{ $("clock").textContent = elapsed(); }, 500); } }
+function log(agent, text, cls){
+  const tr = $("trace");
+  if(tr.querySelector(".empty")) tr.innerHTML = "";
+  const li = document.createElement("li");
+  if(cls) li.className = cls;
+  li.innerHTML = `<span class="t">${elapsed()}</span><span><span class="a">${esc(agent)}</span> ${esc(text)}</span>`;
+  tr.appendChild(li); const box = $("tracebox") || tr; box.scrollTop = box.scrollHeight;
+}
+function setStatus(t){ $("status").textContent = t; }
+function scopeText(){
+  const a = CARD_SOURCES.filter(s=>avail[s.id]==="available").length, p = CARD_SOURCES.filter(s=>avail[s.id]==="partial").length;
+  return `${a} available${p?`, ${p} partial`:""} of ${CARD_SOURCES.length}`;
+}
+function readyStatus(){ setStatus(`Ready. Evidence: ${scopeText()}, plus pre-work. ${LABEL[prov.name]} mode.`); }
+
+/* ================= DERIVED ================= */
+const ownerGaps = inv => (inv||[]).filter(r => !r.biz || !r.tech || String(r.biz).startsWith("~") || String(r.tech).startsWith("~"));
+const extConcerns = inv => (inv||[]).filter(r => r.ext && (r.cls==="Restricted" || r.cls==="Unknown" || !r.biz || !r.tech || /unsanctioned|unknown/i.test(r.stage)));
+const unknownTools = inv => (inv||[]).filter(r => r.kind==="tool" && /unsanctioned|unknown|unconfirmed/i.test(r.stage));
+const isDeclared = r => !!r.declared;
+const assessedRisks = () => (state.out.risks||[]).filter(r => r.assessed !== false);
+const reviewRisks = () => assessedRisks().filter(r => r.sev==="critical" || r.sev==="high");
+const dispOf = r => state.disp[r.id] || r.disp || "remediate";
+function coverage(d){
+  const dim = DIMS.find(x=>x.d===d); if(!dim) return {pct:1,label:"Full",cls:"full"};
+  const pct = dim.srcs.reduce((n,s)=> n + (avail[s]==="available"?1:avail[s]==="partial"?0.5:0), 0) / dim.srcs.length;
+  if(pct===1) return {pct, label:"Full", cls:"full"};
+  if(pct>=0.5) return {pct, label:"Partial", cls:"partial"};
+  if(pct>0) return {pct, label:"Low", cls:"low"};
+  return {pct, label:"No evidence", cls:"none"};
+}
+function dueFor(sev){ return sev==="critical" ? "Within 7 days" : sev==="high" ? "Before day 30" : sev==="medium" ? "Before day 60" : "Before day 90"; }
+function unknownRegister(){
+  const rows = [];
+  (state.out.risks||[]).forEach(r => {
+    if(r.assessed === false) rows.push({what:`${r.id} could not be assessed`, why:r.title, resolve:r.srcs.map(s=>SRC[s].name).join(", "), owner:r.srcs.map(s=>SRC[s].owner).join(", "), due:"Before the workshop", src:"gap"});
+    else if(r.unk) rows.push({what:r.unk, why:`${r.id}: ${r.title}`, resolve:r.res || "Owner attestation", owner:r.owner, due:dueFor(r.sev), src:state.decisions[r.id]==="evidence" ? "review" : "agent"});
+  });
+  CARD_SOURCES.filter(s=>avail[s.id]==="none").forEach(s => rows.push({what:`What the ${s.name.toLowerCase()} would show`, why:`Blind spot: ${s.proves.toLowerCase()}`, resolve:s.name, owner:s.owner, due:"Before the workshop", src:"gap"}));
+  return rows;
+}
+function roadItems(){
+  const o = state.out;
+  const risks = o.risks || [];
+  const items = (o.road||[]).filter(x => { const r = risks.find(z=>z.id===x.r); return !r || dispOf(r) !== "accept"; }).map(x => {
+    const d = x.r ? state.decisions[x.r] : null;
+    const shift = (d==="downgrade" || d==="evidence") ? 1 : 0;
+    return {...x, bucket: Math.min(3, (x.b|0) + shift)};
+  });
+  risks.forEach(r => {
+    if(r.assessed === false){ items.push({t:`Provide evidence for ${r.id}: ${r.srcs.map(s=>SRC[s].name).join(", ")}`, o:r.srcs.map(s=>SRC[s].owner).join(", "), bucket:0, ev:true, r:r.id}); return; }
+    if(state.decisions[r.id]==="evidence") items.push({t:`Evidence request for ${r.id}: ${String(r.unk||"").trim().replace(/[\s.;:,]+$/,"")}`, o:r.owner, bucket:0, ev:true, r:r.id});
+    const d = dispOf(r);
+    if(d==="block") items.push({t:`Pause until met: ${String(r.cond||"").replace(/[\s.]+$/,"")}`, o:r.owner, bucket:0, r:r.id, kind:"block"});
+    if(d==="assure") items.push({t:`Assurance review: ${String(r.cond||"").replace(/[\s.]+$/,"")}`, o:r.owner, bucket:2, r:r.id, kind:"assure"});
+    if(d==="accept") items.push({t:`Record risk acceptance for ${r.id} by ${r.owner}`, o:r.owner, bucket:0, r:r.id, kind:"accept"});
+  });
+  return items;
+}
+/* executive disposition (workshop 06): rule-based from review outcomes and evidence coverage */
+function execDisposition(){
+  const rr = reviewRisks();
+  const blocks = rr.filter(r=>dispOf(r)==="block").length;
+  const pending = rr.filter(r=>state.decisions[r.id]==="evidence" || dispOf(r)==="assure").length + (state.out.risks||[]).filter(r=>r.assessed===false).length;
+  const cov = DIMS.reduce((n,d)=>n+coverage(d.d).pct,0) / DIMS.length;
+  const open = rr.filter(r=>["remediate","block"].includes(dispOf(r))).length;
+  if(blocks >= 2) return {v:"Remediate", why:`${blocks} conditions are paused until their required condition is met, so remediation comes before implementation.`};
+  if(cov < 0.5 || (rr.length && pending / rr.length >= 0.5)) return {v:"Deep-dive assurance", why:`Evidence coverage is ${Math.round(cov*100)}% and ${pending} material conditions still need evidence or assurance before a reliable decision.`};
+  if(open) return {v:"Implement with conditions", why:`Proceed with the governance foundations while the roadmap closes ${open} critical or high conditions${blocks?`, with ${blocks} paused until its condition is met`:""}.`};
+  return {v:"Implement", why:"No critical or high condition blocks the governance foundations."};
+}
+
+/* ================= DETERMINISTIC RULE PASS ================= */
+const RULES = [
+  ["AI SDK imports", /import (openai|anthropic)/gi],
+  ["key patterns", /sk-\*{2,}|_API_KEY/g],
+  ["agent configs (MCP, Claude Code)", /mcp\.json|\.claude\//g],
+  ["AI provider domains", /openai\.com|anthropic\.com|claude\.ai|freellm/g],
+  ["AI cloud and spend lines", /Bedrock|SageMaker|ChatGPT Plus/g],
+  ["AI coding tools", /Copilot|Cline|Claude Code|Cursor/g]
+];
+function ruleLines(){
+  const text = SOURCES.filter(s=>included.has(s.id) && !s.fixed).map(s=>s.raw).join("\n");
+  const hits = RULES.map(([n,re]) => [n, (text.match(re)||[]).length]).filter(x=>x[1]>0);
+  if(!hits.length) return ["Rule pass: no AI signals in the selected evidence"];
+  return ["Rule pass over selected evidence", ...hits.map(([n,c]) => `Rule match: ${c} × ${n}`)];
+}
+
+/* ================= DEMO OUTPUTS ================= */
+function demoOut(id){
+  const o = state.out;
+  if(id==="discovery") o.findings = FINDINGS.filter(f=>inScope(f.srcs)).map((f,i)=>({...f, id:"F"+(i+1), p:basis(f.p,f.srcs)}));
+  if(id==="inventory") o.inventory = INVENTORY.filter(r=>inScope(r.srcs.filter(s=>s!=="prework")) || (r.declared && included.has("prework"))).map(r=>{
+    const found = inScope(r.srcs.filter(s=>s!=="prework"));
+    return {...r, p: found ? basis(r.p, r.srcs) : "assumption", status: found ? r.status : "Declared only · not confirmed in evidence", found};
+  });
+  if(id==="risk") o.risks = RISKS.map(r => inScope(r.srcs) ? {...r, why:whyText(r), p:basis(r.p,r.srcs), assessed:true}
+    : {...r, assessed:false, p:"unknown", why:`Not assessed. The evidence this condition needs (${r.srcs.map(s=>SRC[s].name).join(", ")}) is not available.`});
+  if(id==="controls"){ const ids = new Set(assessedRisks().map(r=>r.id)); o.controls = CONTROLS.filter(c=>ids.has(c.r)).map(c=>({...c})); }
+  if(id==="roadmap"){
+    const ids = new Set(assessedRisks().map(r=>r.id));
+    o.scores = DIMS.map(d=>({d:d.d, s:d.s, why:d.why}));
+    o.road = ROAD.filter(x=>!x.r || ids.has(x.r)).map(x=>({...x}));
+    o.leadership = LEADERSHIP.slice();
+    o.devtools = DEVTOOLS.filter(t=>inScope(t.srcs));
+  }
+}
+function devtoolsView(){
+  if(state.out.devtools && state.runProvider==="demo") return state.out.devtools;
+  if(state.out.devtools && state.fallback.roadmap) return state.out.devtools;
+  return (state.out.inventory||[]).filter(r=>r.kind==="tool").map(r=>({name:r.name, users:r.tool, status:/unsanctioned|unknown|unconfirmed/i.test(r.stage)?"Unknown":"Sanctioned", data:r.data, risk:r.tier==="High"?"High":r.tier==="Medium"?"Moderate":"Low", srcs:r.srcs}));
+}
+
+/* ================= LOG LINES ================= */
+function intakeLines(){
+  const lines = [`Scope: ${SCOPE.scope}`, `Decision to support: ${SCOPE.decision}`, `Pre-work: ${DECLARED.length} AI assets declared by the customer`];
+  CARD_SOURCES.forEach(s => lines.push(`${s.name}: ${avail[s.id]==="available" ? `${s.stat} ${s.unit}` : avail[s.id]==="partial" ? "PARTIAL, facts from it alone become assumptions" : `not available, owner ${s.owner}`}`));
+  lines.push("Evidence register ready. Every later claim cites a source");
+  return lines;
+}
+function summaryLines(id){
+  const o = state.out;
+  const c = (a,p) => a.filter(x=>x.p===p).length;
+  if(id==="discovery"){ const f=o.findings||[]; return [`${f.length} findings: ${c(f,"fact")} fact, ${c(f,"assumption")} assumption, ${c(f,"unknown")} unknown`]; }
+  if(id==="inventory"){ const v=o.inventory||[]; return [`${v.length} AI assets in the register`, `Declared in pre-work: ${v.filter(isDeclared).length}. Found only in evidence: ${v.filter(r=>!r.declared).length}`, `Ownership check: ${ownerGaps(v).length} entries lack a confirmed owner`]; }
+  if(id==="risk"){
+    const r=o.risks||[], s=k=>r.filter(x=>x.sev===k && x.assessed!==false).length, na=r.filter(x=>x.assessed===false).length;
+    const out=[`${s("critical")} critical, ${s("high")} high, ${s("medium")} medium conditions, each with an owner, required condition and next gate`];
+    if(na) out.push(`${na} condition${na>1?"s":""} not assessed: evidence not available`);
+    out.push("Unknowns stay visible and are not rated as safe");
+    return out;
+  }
+  if(id==="controls") return [`Mapped ${(o.controls||[]).length} controls to NIST AI RMF functions`, `Handing ${reviewRisks().length} critical and high conditions to human review`];
+  if(id==="roadmap") return [`Scored ${(o.scores||[]).length} domains on the 0–4 scale with evidence coverage`, "Applied review decisions and dispositions to timing (rule-based)", `${roadItems().length} actions across 30, 60, 90 and 180-day windows`, `Proposed executive disposition: ${execDisposition().v}`];
+  return [];
+}
+function demoLines(id){
+  const pre = {
+    discovery: [...ruleLines(), ...(state.out.findings||[]).slice(0,5).map(f=>`Signal: ${f.sig}`), "Model pass: classifying signals by tool type and exposure"],
+    inventory: ["Merging signals with identity, survey, spend and endpoint evidence", "Comparing the evidence with the pre-work register"],
+    risk: ["Writing each condition as risk event, owner, required condition, disposition and next gate"],
+    controls: ["Mapping conditions to NIST AI RMF core functions"],
+    roadmap: ["Scoring the seven readiness domains"]
+  };
+  return [...(pre[id]||[]), ...summaryLines(id)];
+}
+
+/* ================= LIVE MODEL CALLS ================= */
+let lastRaw = "";
+function apiErr(status, data){
+  const m = (data && data.error && (data.error.message || data.error.type)) || "";
+  if(status===401) return "The provider rejected the API key (401)";
+  if(status===403) return "The key has no access to this model (403)";
+  if(status===404) return "Model not found (404). Check the model name";
+  if(status===429) return "Rate limit or quota reached (429)";
+  return `Provider error ${status}${m ? ": " + String(m).slice(0,160) : ""}`;
+}
+function parseJSON(t){
+  t = String(t||"").replace(/```json|```/g,"").trim();
+  const i = t.indexOf("{"), j = t.lastIndexOf("}");
+  if(i < 0 || j < i) throw new Error("The model returned no JSON");
+  return JSON.parse(t.slice(i, j+1));
+}
+async function callLLM(system, user, p){
+  p = p || state.runProvider;
+  const key = prov.key[p], model = prov.model[p];
+  const ctrl = new AbortController(); const timer = setTimeout(()=>ctrl.abort(), 120000);
+  let res, data, text;
+  try{
+    if(p === "claude"){
+      res = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", signal:ctrl.signal,
+        headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify({model, max_tokens:4000, system, messages:[{role:"user", content:user}]})});
+      data = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(apiErr(res.status, data));
+      text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+    } else {
+      res = await fetch("https://api.openai.com/v1/chat/completions", {method:"POST", signal:ctrl.signal,
+        headers:{"content-type":"application/json","authorization":"Bearer " + key},
+        body:JSON.stringify({model, response_format:{type:"json_object"}, messages:[{role:"system", content:system},{role:"user", content:user}]})});
+      data = await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(apiErr(res.status, data));
+      text = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : "";
+    }
+  } catch(e){
+    if(e.name === "AbortError") throw new Error("The request timed out after 120 seconds");
+    if(e instanceof TypeError) throw new Error("The browser could not reach the provider. Open this page from the downloaded file or a normal web host; some embedded previews block external API calls");
+    throw e;
+  } finally { clearTimeout(timer); }
+  lastRaw = text;
+  return parseJSON(text);
+}
+
+
+/* ----- validation with a visible correction log ----- */
+let notes = [];
+const P = v => { const s = String(v||"").toLowerCase(); if(["fact","assumption","unknown"].includes(s)) return s; notes.push(`Basis "${String(v)}" is not allowed; set to UNKNOWN`); return "unknown"; };
+const SEV = v => { const s = String(v||"").toLowerCase(); if(["critical","high","medium","low"].includes(s)) return s; notes.push(`Severity "${String(v)}" is not allowed; set to medium`); return "medium"; };
+const SRCS = a => {
+  if(!Array.isArray(a)) return [];
+  const ok = a.map(String).filter(x=>SRC[x] && included.has(x)), bad = a.map(String).filter(x=>!(SRC[x] && included.has(x)));
+  if(bad.length) notes.push(`Dropped source id${bad.length>1?"s":""} not in scope: ${bad.join(", ")}`);
+  return ok;
+};
+const S = (v, n) => { const s = v == null ? "" : String(v); if(n && s.length > n) notes.push(`A text field was shortened to ${n} characters`); return s.slice(0, n || 400); };
+const ENUM = (v, list, dflt, label) => { const hit = list.find(x=>x.toLowerCase()===String(v==null?"":v).toLowerCase()); if(hit) return hit; if(v != null && v !== "") notes.push(`${label[0].toUpperCase()+label.slice(1)} "${String(v)}" is not allowed; set to ${dflt}`); return dflt; };
+const OWN = v => (v == null || String(v).trim()==="" || /^null$/i.test(String(v))) ? null : S(v,80);
+const arr = (o,k,max) => {
+  if(!o || !Array.isArray(o[k]) || !o[k].length) throw new Error(`Output did not match the expected schema (${k})`);
+  if(max && o[k].length > max) notes.push(`Kept the first ${max} of ${o[k].length} ${k} items`);
+  return o[k].slice(0, max || o[k].length);
+};
+
+function evidenceText(){
+  return SOURCES.filter(s=>included.has(s.id)).map(s=>`### source id: ${s.id} (${s.name})${partial.has(s.id) ? " [PARTIAL COVERAGE]" : ""}\n${s.raw}`).join("\n\n");
+}
+function sysPrompt(role){
+  const ids = SOURCES.filter(s=>included.has(s.id)).map(s=>`"${s.id}"`).join(", ");
+  return `You are the ${role} agent in a multi-agent AI governance readiness assessment for Arenal Play, a FICTIONAL online casino operator. All evidence is synthetic.
+Rules:
+- Use only the evidence and prior agent outputs provided. Never invent systems, people, numbers or sources.
+- Tag each item's basis "p" as "fact" (shown directly in the evidence), "assumption" (reasonable inference that needs confirmation) or "unknown" (cannot be determined from the evidence).
+- "srcs" lists the source ids that support the item, chosen only from: ${ids}.
+- A fact supported only by sources marked [PARTIAL COVERAGE] must be tagged "assumption".
+- Do not cite laws or regulations.
+- Respond with one JSON object only. No markdown and no commentary.`;
+}
+const J = v => JSON.stringify(v);
+const joinParts = parts => parts.map(p => p.label ? `${p.label}:\n${p.text}` : p.text).join("\n\n");
+
+/* ----- prompt builders: one per model-driven agent ----- */
+const PROMPTS = {
+  discovery: () => ({ system: sysPrompt("Shadow AI discovery"), parts: [
+    {label:"Evidence", text:evidenceText(), collapse:true},
+    {text:`Identify AI-related signals: AI SDKs, API keys, MCP or agent configs, AI provider traffic, unsanctioned AI apps, AI spend, AI coding tools and extensions, vendor AI terms, and missing AI policies or approvals.
+Return JSON: {"findings":[{"sig":"short signal name","where":"location or scope","srcs":["source id"],"p":"fact|assumption|unknown","note":"one short note"}]}. Maximum 14 findings.`}]}),
+  inventory: () => ({ system: sysPrompt("Inventory and ownership"), parts: [
+    {label:"Evidence", text:evidenceText(), collapse:true},
+    {label:"Discovery findings", text:J(state.out.findings), collapse:true},
+    {text:`Build the AI initiative and tool register, and compare it with what the customer declared in the pre-work workbook (source "prework").
+Return JSON: {"inventory":[{"name":"","kind":"initiative|tool","stage":"Production|Pilot|PoC|Experimental|Unsanctioned|Unknown","tool":"provider or product","biz":"business owner or null","tech":"technical owner or null","data":"data involved","cls":"Restricted|Confidential|Internal|Unknown","tier":"High|Medium|Low","ext":true,"declared":true,"status":"short governance status","p":"fact|assumption|unknown","srcs":["source id"]}]}.
+"declared" is true only if the asset appears in the pre-work workbook. "ext" is true if data reaches an external AI provider. Tier High means player data, Restricted data or autonomous actions.
+Use null when an owner is not shown in the evidence. Prefix an owner with "~" if it is inferred rather than shown. Maximum 14 entries.`}]}),
+  risk: () => ({ system: sysPrompt("Risk classification"), parts: [
+    {label:"Discovery findings", text:J(state.out.findings), collapse:true},
+    {label:"AI register", text:J(state.out.inventory), collapse:true},
+    {text:`Identify governance conditions across data exposure, security, vendor, autonomy, accountability and lifecycle.
+Write each condition in the workshop format: risk event, owner, required condition, disposition and next gate.
+Return JSON: {"risks":[{"id":"R1","sev":"critical|high|medium|low","cat":"short category","title":"risk event","why":"evidence-based reason, one or two sentences","p":"fact|assumption|unknown","unk":"what is still unknown","res":"evidence that would resolve the unknown","owner":"owner role who accepts or closes the risk","cond":"what must be true before the next gate","disp":"remediate|assure|block|accept","gate":"G0|G1|G2|G3|G4|G5|G6|G7","srcs":["source id"]}]}.
+Gates: G0 intake, G1 risk tier, G2 design/data, G3 security/evaluation, G4 production, G5 change, G6 recertify, G7 retire. Use "block" only when an activity should pause until its condition is met.
+Use ids R1, R2 and so on, ordered from most to least severe. Maximum 10. Reserve critical for conditions that need containment within days.`}]}),
+  controls: () => ({ system: sysPrompt("Control mapping"), parts: [
+    {label:"Conditions", text:J(state.out.risks), collapse:true},
+    {text:`Map each condition to NIST AI RMF core functions (Govern, Map, Measure, Manage) at function level only. Do not cite subcategory identifiers.
+Return JSON: {"controls":[{"r":"risk id","fn":"for example Govern, Manage","ctl":"proposed control in one sentence","type":"Technical, Policy, Process or a combination"}]}. One entry per condition.`}]}),
+  roadmap: () => ({ system: sysPrompt("Roadmap and scorecard"), parts: [
+    {label:"Evidence coverage", text:J(CARD_SOURCES.map(s=>({id:s.id, name:s.name, availability:avail[s.id], owner:s.owner, proves:s.proves}))), collapse:true},
+    {label:"Current controls from pre-work", text:J(CURRENT), collapse:true},
+    {label:"AI estate register", text:J(state.out.inventory), collapse:true},
+    {label:"Conditions", text:J(state.out.risks), collapse:true},
+    {label:"Controls", text:J(state.out.controls), collapse:true},
+    {label:"Review decisions by the engagement lead", text:J(state.decisions)},
+    {text:`Return JSON: {"scores":[{"d":"domain","s":1,"why":"one-line evidence-based reason"}],"road":[{"t":"action","r":"risk id or null","b":0,"o":"owner role"}],"leadership":["decision 1","decision 2","decision 3"]}.
+Base each score on the evidence coverage, current controls and conditions above; a domain with little evidence should not score high. Score exactly these domains as integers from 0 to 4 (0 Absent, 1 Emerging, 2 Defined, 3 Managed, 4 Assured): ${J(DIMS.map(d=>d.d))}. A high score means the capability is evidenced and repeatable, not certified.
+"b" is the time window: 0 = first 30 days, 1 = days 31-60, 2 = days 61-90, 3 = days 91-180. Put containment of critical conditions in window 0.
+Do not apply the review decisions to timing yourself; the application does that afterwards. Maximum 18 actions. Exactly 3 leadership decisions.`}]})
+};
+
+/* ----- normalizers: turn validated JSON into the page's data model ----- */
+const APPLY = {
+  discovery: o => { state.out.findings = arr(o,"findings",16).map((f,i)=>({id:"F"+(i+1), sig:S(f.sig,120), where:S(f.where,140), srcs:SRCS(f.srcs), p:P(f.p), note:S(f.note,160)})); return state.out.findings.length; },
+  inventory: o => { state.out.inventory = arr(o,"inventory",16).map(r=>({name:S(r.name,90), kind:ENUM(r.kind,["initiative","tool"],"initiative","kind"), stage:S(r.stage,30)||"Unknown", tool:S(r.tool,90), biz:OWN(r.biz), tech:OWN(r.tech), data:S(r.data,120), cls:ENUM(r.cls,["Restricted","Confidential","Internal","Unknown"],"Unknown","classification"), tier:ENUM(r.tier,["High","Medium","Low"],"Medium","tier"), ext:r.ext===true, declared:r.declared===true, status:S(r.status,80), p:P(r.p), srcs:SRCS(r.srcs), found:true})); return state.out.inventory.length; },
+  risk: o => { state.out.risks = arr(o,"risks",12).map((r,i)=>({id:S(r.id,6)||("R"+(i+1)), sev:SEV(r.sev), cat:S(r.cat,60), title:S(r.title,140), why:S(r.why,400), p:P(r.p), unk:S(r.unk,220), res:S(r.res,200), owner:S(r.owner,90), cond:S(r.cond,240), disp:ENUM(String(r.disp||"").toLowerCase(),["remediate","assure","block","accept"],"remediate","disposition"), gate:ENUM(String(r.gate||"").toUpperCase().slice(0,2),GATES.map(g=>g[0]),"G1","gate"), srcs:SRCS(r.srcs), assessed:true})); return state.out.risks.length; },
+  controls: o => { state.out.controls = arr(o,"controls",14).map(c=>({r:S(c.r,6), fn:S(c.fn,40), ctl:S(c.ctl,300), type:S(c.type,40)})); return state.out.controls.length; },
+  roadmap: o => {
+    const dims = DIMS.map(d=>d.d), sc = Array.isArray(o.scores) ? o.scores : [];
+    state.out.scores = dims.map((d,i) => {
+      const m = sc.find(x=>String(x.d||"").toLowerCase()===d.toLowerCase()) || (sc.length===dims.length && sc[i] && !sc[i].d ? sc[i] : null);
+      const v = m ? Number(m.s) : NaN;
+      if(!isFinite(v)) notes.push(`No valid score for "${d}"; used the pre-built score`);
+      if(isFinite(v) && (v < 0 || v > 4 || v !== Math.round(v))) notes.push(`Score ${v} for "${d}" adjusted to the 0–4 integer scale`);
+      return {d, s: isFinite(v) ? Math.max(0, Math.min(4, Math.round(v))) : DIMS[i].s, why: isFinite(v) ? S(m.why,160) : DIMS[i].why};
+    });
+    state.out.road = arr(o,"road",20).map(x=>{
+      const b = parseInt(x.b,10);
+      if(!(b>=0 && b<=3)) notes.push(`Window "${x.b}" is out of range; set to the first 30 days`);
+      return {t:S(x.t,160), r:x.r ? S(x.r,6) : null, b:(b>=0 && b<=3) ? b : 0, o:S(x.o,80)};
+    });
+    if(!(Array.isArray(o.leadership) && o.leadership.length)){ notes.push("No leadership decisions returned; used the pre-built ones"); state.out.leadership = LEADERSHIP.slice(); }
+    else state.out.leadership = o.leadership.slice(0,3).map(x=>S(x,220));
+    return state.out.road.length;
+  }
+};
+
+/* ----- record what each agent was asked and what came back ----- */
+function recordIO(id, extra){
+  const pr = PROMPTS[id]();
+  state.io[id] = Object.assign({system:pr.system, parts:pr.parts, user:joinParts(pr.parts)}, extra);
+}
+
+async function liveStep(a){
+  const L = LABEL[state.runProvider];
+  if(a.id==="discovery"){ for(const l of ruleLines()){ log(a.name, l); await sleep(pace); } }
+  const pr = PROMPTS[a.id](), user = joinParts(pr.parts);
+  state.io[a.id] = {mode:"live", provider:state.runProvider, model:prov.model[state.runProvider], system:pr.system, parts:pr.parts, user, raw:"", notes:[], count:0};
+  log(a.name, `Calling ${L} (${prov.model[state.runProvider]}), prompt ${(pr.system.length + user.length).toLocaleString()} characters`, "llm");
+  const t = Date.now(); lastRaw = ""; notes = [];
+  try{
+    const o = await callLLM(pr.system, user);
+    const n = APPLY[a.id](o);
+    Object.assign(state.io[a.id], {raw:lastRaw, ms:Date.now()-t, notes:notes.slice(), count:n});
+    state.live[a.id] = true;
+    log(a.name, `${L} responded in ${((Date.now()-t)/1000).toFixed(1)}s; ${n} items validated${notes.length ? `, ${notes.length} correction${notes.length>1?"s":""}` : ""}`, "llm");
+  } catch(e){
+    Object.assign(state.io[a.id], {raw:lastRaw, ms:Date.now()-t, error:e.message, notes:notes.slice()});
+    state.fallback[a.id] = true;
+    log(a.name, `Model step failed: ${e.message}. Using the pre-built output for this step`, "warn");
+    demoOut(a.id);
+  }
+  for(const l of summaryLines(a.id)){ log(a.name, l); await sleep(pace/2); }
+}
+
+/* ================= OUTPUT RENDERERS ================= */
+const trimEnd = v => String(v == null ? "" : v).trim().replace(/[\s.;:,]+$/,"");
+const endDot = v => { const t = trimEnd(v); return t ? (/[!?]$/.test(t) ? t : t + ".") : ""; };
+const gateName = g => { const x = GATES.find(y=>y[0]===g); return x ? `${x[0]} ${x[1]}` : esc(g||"—"); };
+const srcNames = srcs => (srcs||[]).map(s=>SRC[s] ? `${SRC[s].code} ${SRC[s].cat}` + (partial.has(s)?" (partial)":"") : s).join(", ") || "—";
+function badge(id){
+  if(state.fallback[id]) return `<span class="fbnote">Scripted fallback: the model step failed, see trace</span>`;
+  if(state.live[id]) return `<span class="srcnote">Generated live by ${esc(LABEL[state.runProvider])}</span>`;
+  return "";
+}
+const R = {};
+R.intake = () => `
+  <h3>Evidence register</h3>
+  <p class="hint">What each source proves, its blind spot and its owner.</p>
+  <div class="table-wrap"><table class="dense">
+    <tr><th>Source</th><th>Availability</th><th>Evidence owner</th><th>Blind spot</th></tr>
+    ${SOURCES.map(s=>`<tr><td title="${esc(s.stat)} ${esc(s.unit)}"><span class="ecode sm">${s.code}</span> <strong>${esc(s.name)}</strong></td><td>${availChip(avail[s.id])}</td><td>${esc(s.owner)}</td><td class="muted">${esc(s.blind)}</td></tr>`).join("")}
+  </table></div>`;
+function availChip(a){ return a==="available" ? '<span class="av av-a">Available</span>' : a==="partial" ? '<span class="av av-p">Partial</span>' : '<span class="av av-n">Not available</span>'; }
+const srcShort = srcs => (srcs||[]).filter(x=>x!=="prework").map(x=>SRC[x] ? `${SRC[x].code} ${SRC[x].cat}` + (partial.has(x)?"*":"") : x).join(", ") || "PW Pre-work";
+R.discovery = () => { const f = state.out.findings||[]; return `
+  ${badge("discovery")}<h3>Shadow AI and developer AI signals</h3>
+  <p class="hint">${f.length} signals. Rules find them; the model only classifies. * partial evidence.</p>
+  ${f.length ? `<div class="table-wrap"><table class="dense">
+    <tr><th>Signal</th><th>Where</th><th>Source</th><th>Basis</th></tr>
+    ${f.map(x=>`<tr><td title="${esc(x.note)}">${esc(x.sig)}</td><td><code>${esc(x.where)}</code></td><td class="muted">${esc(srcShort(x.srcs))}</td><td>${tag(x.p)}</td></tr>`).join("")}
+  </table></div>` : `<p class="empty">No signals in the evidence in scope.</p>`}`; };
+const own1 = v => !v ? tag("unknown") : String(v).startsWith("~") ? `${esc(String(v).slice(1))} ${tag("assumption")}` : esc(v);
+R.inventory = () => { const v = state.out.inventory||[]; return `
+  ${badge("inventory")}<h3>AI estate and ownership register</h3>
+  <p class="hint">${v.length} AI assets · ${ownerGaps(v).length} without a confirmed owner · ${v.filter(r=>!r.declared).length} not declared in pre-work. Hover an asset for details; “ext” = external AI provider.</p>
+  <div class="table-wrap"><table class="dense inv">
+    <tr><th>AI asset</th><th>Business owner</th><th>Technical owner</th><th>Data</th><th>Tier</th><th>Governance status</th><th>Basis</th></tr>
+    ${v.map(r=>`<tr><td title="${esc(r.tool)} · ${esc(r.stage)} · ${esc(srcShort(r.srcs))}"><strong>${esc(r.name)}</strong> ${r.declared?'<span class="chip dec">Declared</span>':'<span class="chip new">New</span>'}</td>
+      <td>${own1(r.biz)}</td><td>${own1(r.tech)}</td>
+      <td class="nowrap"><span class="cls cls-${esc(String(r.cls).toLowerCase())}">${esc(r.cls)}</span>${r.ext?' <span class="muted" title="Data reaches an external AI provider">ext</span>':""}</td>
+      <td><span class="tier t-${esc(String(r.tier).toLowerCase())}">${esc(r.tier)}</span></td>
+      <td>${esc(r.status)}</td><td>${tag(r.p)}</td></tr>`).join("")}
+  </table></div>
+`; };
+/* decision box: shows the proposal, a live choice, and flags overrides */
+function decHtml(r, choice, decided){
+  const prop = r.disp || "remediate";
+  if(!choice) return `<small>Decision</small>Proposed: ${esc(DISP[prop])}`;
+  const over = choice !== prop;
+  return `<small>${decided ? "Decision" : "Your decision"}${over ? ' <em class="ovr-tag">Override</em>' : ""}</small>${esc(DISP[choice])}${over ? `<em class="was">proposed: ${esc(DISP[prop])}</em>` : ""}`;
+}
+function chain(r){
+  const decided = state.done.gate;
+  const choice = decided ? dispOf(r) : (state.pending && state.pending[r.id]) || null;
+  const over = choice && choice !== (r.disp || "remediate");
+  return `<div class="chain" aria-label="Fact, evidence, owner, decision, next gate">
+    <span><small>Fact basis</small>${tag(r.p)}</span><i aria-hidden="true">→</i>
+    <span><small>Evidence</small>${esc(srcNames(r.srcs))}</span><i aria-hidden="true">→</i>
+    <span><small>Owner</small>${esc(r.owner)}</span><i aria-hidden="true">→</i>
+    <span class="dec${over ? " ovr" : ""}" id="dec-${esc(r.id)}" aria-live="polite">${decHtml(r, choice, decided)}</span><i aria-hidden="true">→</i>
+    <span><small>Next gate</small>${gateName(r.gate)}</span></div>`;
+}
+function ratingFlag(r){
+  const v = state.done.gate ? state.decisions[r.id] : (state.pendingRate && state.pendingRate[r.id]);
+  if(v === "downgrade") return '<em class="ovr-tag">Rating downgraded</em>';
+  if(v === "evidence") return '<em class="ovr-tag ev">Evidence first</em>';
+  return "";
+}
+function riskCard(r, extra){
+  const na = r.assessed === false;
+  return `<div class="risk ${na?"na":""}">
+    <div class="risk-top"><span class="rid">${esc(r.id)}</span>${na ? '<span class="sev low">Not assessed</span>' : `<span class="sev ${r.sev}">${r.sev}</span>`}<span class="rate-flag" id="rate-${esc(r.id)}">${ratingFlag(r)}</span><span class="muted" style="font-size:12px">${esc(r.cat)}</span></div>
+    <h4>${esc(r.title)}</h4>
+    <p>${esc(r.why)}</p>
+    ${na ? "" : `<div class="cond"><b>Required condition</b> ${esc(endDot(r.cond))}</div>
+    <div class="meta"><b>Still unknown:</b> ${esc(endDot(r.unk))} ${r.res ? `<b>Resolve with:</b> ${esc(endDot(r.res))}` : ""}</div>
+    ${chain(r)}`}
+    ${extra||""}
+  </div>`;
+}
+R.risk = () => `${badge("risk")}<h3>Priority risks and conditions</h3>
+  <p class="hint">Each condition names its owner and what must be true before the next gate. Select a row for details.</p>
+  <div class="acc">${(state.out.risks||[]).map(r=>{ const na = r.assessed===false; return `<details class="acc-row${na?" na":""}"><summary>
+      <span class="rid">${esc(r.id)}</span>${na ? '<span class="sev low">Not assessed</span>' : `<span class="sev ${r.sev}">${r.sev}</span>`}
+      <span class="acc-t">${esc(r.title)}</span>
+      <span class="acc-m">${esc(r.owner)}</span><span class="acc-m">${gateName(r.gate)}</span>
+      <span class="acc-d">${na ? "—" : esc(DISP[dispOf(r)])}</span></summary>
+      <div class="acc-b">${riskCard(r)}</div></details>`; }).join("")}</div>`;
+R.controls = () => { const risks = state.out.risks||[]; return `${badge("controls")}<h3>Control mapping</h3>
+  <p class="hint">Mapped to NIST AI RMF core functions (Govern, Map, Measure, Manage), at function level only.</p>
+  <div class="table-wrap"><table class="dense">
+    <tr><th>ID</th><th>Proposed control</th><th>Function</th><th>Type</th><th>Next gate</th></tr>
+    ${(state.out.controls||[]).map(c=>{ const r = risks.find(x=>x.id===c.r); return `<tr><td title="${r?esc(r.title):""}"><span class="rid">${esc(c.r)}</span> ${r?`<span class="sdot ${r.sev}" title="${r.sev}"></span>`:""}</td><td>${esc(c.ctl)}</td><td>${esc(c.fn)}</td><td class="muted">${esc(c.type)}</td><td>${r?gateName(r.gate):"—"}</td></tr>`; }).join("")}
+  </table></div>`; };
+const DLABEL = {accept:"Rating accepted", downgrade:"Rating downgraded, moved one window later", evidence:"Sent back for evidence"};
+R.gate = () => {
+  const locked = !!state.done.gate, rr = reviewRisks();
+  if(locked) return `<h3>Review record</h3>
+  <p class="hint">Decisions recorded by the engagement lead. Amber rows differ from the agents’ proposal.</p>
+  <div class="table-wrap"><table class="dense">
+    <tr><th>ID</th><th>Condition</th><th>Rating decision</th><th>Disposition</th><th>Proposed</th></tr>
+    ${rr.map(r=>{ const ov = dispOf(r)!==(r.disp||"remediate") || ["downgrade","evidence"].includes(state.decisions[r.id]); return `<tr class="${ov?"ovr-row":""}"><td><span class="rid">${esc(r.id)}</span> <span class="sdot ${r.sev}"></span></td><td>${esc(r.title)}</td><td>${esc(DLABEL[state.decisions[r.id]]||"")}</td><td><strong>${esc(DISP[dispOf(r)])}</strong></td><td class="muted">${esc(DISP[r.disp||"remediate"])}</td></tr>`; }).join("")}
+  </table></div>`;
+  return `<h3>Governance review</h3>
+  <p class="hint">${locked ? "Decisions recorded by the engagement lead. The roadmap and executive disposition use them." : "The agents propose; a person decides. For each critical and high condition, confirm the rating and choose the disposition: accept, remediate, assure or block/pause."}</p>
+  ${rr.length ? rr.map(r => riskCard(r, locked
+      ? `<div class="decision ${state.decisions[r.id]}">${DLABEL[state.decisions[r.id]]} · Disposition: ${DISP[dispOf(r)]}${dispOf(r)!==(r.disp||"remediate") ? ` (override of proposed ${DISP[r.disp||"remediate"]})` : ""}</div>`
+      : `<div class="review-row">
+          <div class="choice" role="radiogroup" aria-label="Rating for ${esc(r.id)}">
+            <label><input type="radio" name="d-${esc(r.id)}" value="accept" checked> Accept rating</label>
+            <label><input type="radio" name="d-${esc(r.id)}" value="downgrade"> Downgrade</label>
+            <label><input type="radio" name="d-${esc(r.id)}" value="evidence"> Request evidence first</label>
+          </div>
+          <label class="dispsel">Disposition <select name="p-${esc(r.id)}">${Object.entries(DISP).map(([k,l])=>`<option value="${k}" ${k===(r.disp||"remediate")?"selected":""}>${l}</option>`).join("")}</select></label>
+        </div>`)).join("") : `<p class="empty">No critical or high conditions to review with the evidence in scope.</p>`}
+  ${locked ? "" : `<div class="gatebar"><button class="btn primary" id="approve" type="button">Record decisions and continue</button><span class="muted" style="font-size:12.5px">Try Block / pause on R1 or Request evidence on R5, then watch the roadmap and executive disposition.</span></div>`}`;
+};
+function scoreBlock(){
+  const sc = state.out.scores||[];
+  const valid = sc.filter(x=>coverage(x.d).pct>0);
+  const avg = valid.length ? (valid.reduce((a,b)=>a+b.s,0)/valid.length).toFixed(1) : "–";
+  return `<div class="sc-head"><h3>Governance readiness scorecard</h3><span class="sc-avg">Average <b>${avg}</b> of 4</span></div>
+  <div class="legend04" aria-label="Scale">${SCALE.map((l,i)=>`<div class="lv lv${i}"><b>${i} · ${l}</b><span>${SCALE_DEF[i]}</span></div>`).join("")}</div>
+  <div class="sc-rows">${sc.map(x=>{ const c = coverage(x.d), none = c.pct===0; return `<div class="score2">
+    <div class="sd"><span class="nm">${esc(x.d)}</span><span class="why">${none ? "No evidence in scope" : esc(x.why||"")}</span></div>
+    <span class="bar" aria-hidden="true"><i class="lv${none?0:x.s}" style="width:${none?0:Math.max(x.s/4*100,2)}%"></i></span>
+    <span class="v lvt${none?0:x.s}">${none?"–":`${x.s} · ${SCALE[x.s]}`}</span>
+    <span class="cov ${c.cls}" title="Evidence coverage for this domain">${c.label}</span></div>`; }).join("")}</div>
+  <p class="fine" style="margin-top:8px">Coverage shows how much of the evidence each score needs was in scope. A high score is not “ISO certified”. Scores are illustrative.</p>`;
+}
+function roadBlock(){
+  const items = roadItems();
+  return `<div class="road">${BUCKETS.map((b,i)=>`
+    <div class="col"><h4>${b}</h4><ul>
+      ${items.filter(x=>x.bucket===i).map(x=>`<li class="${x.ev?"ev":""} ${x.kind?"k-"+x.kind:""}">${x.ev?tag("unknown")+" ":""}${esc(x.t)}${x.r?` <span class="rid">${esc(x.r)}</span>`:""}<span class="o">${esc(x.o)}</span></li>`).join("") || '<li class="muted">No actions</li>'}
+    </ul></div>`).join("")}</div>`;
+}
+R.roadmap = () => {
+  const sub = state.rsub || "score";
+  return `${badge("roadmap")}<div class="subtog" role="tablist" aria-label="Readiness and roadmap">
+      <button type="button" role="tab" data-rsub="score" aria-selected="${sub==="score"}">Readiness scorecard</button>
+      <button type="button" role="tab" data-rsub="road" aria-selected="${sub==="road"}">30/60/90/180-day roadmap</button></div>
+    ${sub==="score" ? scoreBlock() : `<p class="hint" style="margin-top:-6px">Review decisions set the timing: downgrade or evidence moves work later; block adds a pause; assure adds a review.</p>${roadBlock()}`}`;
+};
+
+/* compact previews for the Agent workflow stage; full outputs live in Assessment results */
+const FULL = {intake:"intake", discovery:"discovery", inventory:"inventory", risk:"risk", controls:"controls", roadmap:"roadmap", gate:"gate"};
+const PREVIEW = {
+  intake: () => { const a = CARD_SOURCES.filter(s=>avail[s.id]==="available").length, p = CARD_SOURCES.filter(s=>avail[s.id]==="partial").length, n = CARD_SOURCES.length-a-p;
+    return `<div class="pv-stats"><div><b>${a}</b><span>available</span></div><div><b>${p}</b><span>partial</span></div><div><b>${n}</b><span>not available</span></div><div><b>${DECLARED.length}</b><span>assets declared in pre-work</span></div></div>
+    <div class="pv-chips">${CARD_SOURCES.map(s=>`<span><span class="ecode sm">${s.code}</span> ${availChip(avail[s.id])} ${esc(s.name)}</span>`).join("")}</div>`; },
+  discovery: () => { const f = state.out.findings||[], c = p => f.filter(x=>x.p===p).length;
+    return `<div class="pv-stats"><div><b>${f.length}</b><span>signals</span></div><div><b>${c("fact")}</b><span>fact</span></div><div><b>${c("assumption")}</b><span>assumption</span></div><div><b>${c("unknown")}</b><span>unknown</span></div></div>
+    <ul class="pv-list">${f.slice(0,5).map(x=>`<li>${tag(x.p)} ${esc(x.sig)}</li>`).join("")}</ul>`; },
+  inventory: () => { const v = state.out.inventory||[];
+    return `<div class="pv-stats"><div><b>${v.length}</b><span>AI assets</span></div><div><b>${v.filter(isDeclared).length}</b><span>declared in pre-work</span></div><div><b>${v.filter(r=>!r.declared).length}</b><span>found only in evidence</span></div><div><b>${ownerGaps(v).length}</b><span>ownership gaps</span></div></div>`; },
+  risk: () => { const r = (state.out.risks||[]).filter(x=>x.assessed!==false), s = k => r.filter(x=>x.sev===k).length, na = (state.out.risks||[]).length - r.length;
+    return `<div class="pv-stats"><div class="al"><b>${s("critical")}</b><span>critical</span></div><div><b>${s("high")}</b><span>high</span></div><div><b>${s("medium")}</b><span>medium</span></div><div><b>${na}</b><span>not assessed</span></div></div>
+    <ul class="pv-list">${r.slice(0,3).map(x=>`<li><span class="sev ${x.sev}">${x.sev}</span> ${esc(x.title)}</li>`).join("")}</ul>`; },
+  controls: () => { const c = state.out.controls||[], n = k => c.filter(x=>String(x.fn).includes(k)).length;
+    return `<div class="pv-stats"><div><b>${c.length}</b><span>controls</span></div><div><b>${n("Govern")}</b><span>Govern</span></div><div><b>${n("Map")}</b><span>Map</span></div><div><b>${n("Measure")}</b><span>Measure</span></div><div><b>${n("Manage")}</b><span>Manage</span></div></div>`; },
+  gate: () => { const rr = reviewRisks(), d = k => rr.filter(r=>state.decisions[r.id]===k).length, ov = rr.filter(r=>dispOf(r)!==(r.disp||"remediate") || ["downgrade","evidence"].includes(state.decisions[r.id])).length;
+    return `<div class="pv-stats"><div><b>${rr.length}</b><span>reviewed</span></div><div><b>${d("accept")}</b><span>accepted</span></div><div><b>${d("downgrade")+d("evidence")}</b><span>changed or sent back</span></div><div><b>${ov}</b><span>overrides</span></div></div>`; },
+  roadmap: () => { const sc = (state.out.scores||[]).filter(x=>coverage(x.d).pct>0), avg = sc.length ? (sc.reduce((a,b)=>a+b.s,0)/sc.length).toFixed(1) : "–", it = roadItems(), w = i => it.filter(x=>x.bucket===i).length;
+    return `<div class="pv-disp"><span>Proposed executive disposition</span><b>${esc(execDisposition().v)}</b></div>
+    <div class="pv-stats"><div><b>${avg}</b><span>average readiness (0–4)</span></div><div><b>${w(0)}</b><span>actions, 0–30 days</span></div><div><b>${w(1)}</b><span>31–60 days</span></div><div><b>${w(2)+w(3)}</b><span>61–180 days</span></div></div>`; }
+};
+function previewBlock(id){
+  const go = state.done.roadmap
+    ? `<button class="btn primary small" type="button" data-full="${FULL[id]}">Open full output in Assessment results</button>`
+    : `<span class="muted" style="font-size:12.5px">The full output opens in Assessment results when the run completes.</span>`;
+  return `${badge(id)}<h3>What this agent produced</h3>${PREVIEW[id]()}<div class="pv-go">${go}</div>`;
+}
+R.summary = () => {
+  const o = state.out, inv = o.inventory||[], d = Object.values(state.decisions), n = k => d.filter(x=>x===k).length;
+  const ed = execDisposition(), teams = new Set(inv.map(r=>r.biz).filter(b=>b && !String(b).startsWith("~"))).size;
+  const und = inv.filter(r=>!r.declared).length, gaps = ownerGaps(inv).length;
+  return `<h3>Executive governance readiness view</h3>
+  <p class="hint">Arenal Play (fictional) · run with ${esc(LABEL[state.runProvider])}${Object.keys(state.fallback).length ? ", scripted fallback on some steps" : ""} · evidence ${esc(scopeText())} plus pre-work. Synthetic example, not a finding about any real organization.</p>
+  <div class="stats">
+    <div class="stat"><b>${inv.length}</b><span>AI assets</span></div>
+    <div class="stat"><b>${gaps}</b><span>ownership gaps</span></div>
+    <div class="stat"><b>${extConcerns(inv).length}</b><span>external-data concerns</span></div>
+    <div class="stat alert"><b>${unknownTools(inv).length}</b><span>unknown tools</span></div>
+  </div>
+  <div class="two">
+    <div class="box"><h4>Executive interpretation</h4><p>AI use is active across ${teams} ${teams===1?"team":"teams"}, but the estate is not yet represented by one accountable inventory. ${gaps} of ${inv.length} AI assets ${gaps===1?"lacks":"lack"} a confirmed owner, and ${und} ${und===1?"was":"were"} found in evidence but not declared in pre-work. The highest-value first action is to establish ownership and a sanctioned developer-AI control model before expanding technical discovery.</p></div>
+    <div class="box"><h4>Proposed executive disposition</h4><p class="disp">${esc(ed.v)}</p><p>${esc(ed.why)}</p><p class="fine">Implement · Implement with conditions · Remediate · Deep-dive assurance. Decision support, rule-based on review outcomes and evidence coverage. The executive sponsor makes the final call.</p></div>
+  </div>
+  <h3>Decisions needed from leadership</h3>
+  <ol class="decisions">${(o.leadership||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ol>
+  <div class="strip"><span><b>${inv.filter(isDeclared).length}</b> declared in pre-work</span><span><b>${inv.length}</b> found in the AI estate</span><span><b>${und}</b> not declared</span><button class="btn small" type="button" data-res-go="declared">Compare declared vs discovered</button></div>
+  <p class="hint">Review record: ${n("accept")} ratings accepted, ${n("downgrade")} downgraded, ${n("evidence")} sent back for evidence. Dispositions: ${Object.keys(DISP).map(k=>`${reviewRisks().filter(r=>dispOf(r)===k).length} ${DISP[k].toLowerCase()}`).join(", ")}. Overrides of the agents’ proposals: ${reviewRisks().filter(r=>dispOf(r)!==(r.disp||"remediate") || ["downgrade","evidence"].includes(state.decisions[r.id])).length}.</p>`;
+};
+R.declared = () => {
+  const inv = state.out.inventory||[], dec = inv.filter(isDeclared), und = inv.filter(r=>!r.declared);
+  return `<h3>Declared vs discovered</h3>
+  <p class="hint">Leadership declared <b>${dec.length}</b> AI assets in the pre-work. The evidence shows <b>${inv.length}</b>. Governance has to cover what is actually in use, not only the projects leadership knows about.</p>
+  <div class="two">
+    <div class="box"><h4>Declared in pre-work (${dec.length})</h4><ul class="plain">${dec.map(r=>`<li><strong>${esc(r.name)}</strong><span>${r.found===false ? tag("assumption")+" Not confirmed in evidence" : tag("fact")+" Confirmed in evidence"} · ${esc(r.status)}</span></li>`).join("") || "<li class='muted'>None</li>"}</ul></div>
+    <div class="box accent"><h4>Found only in evidence (${und.length})</h4><ul class="plain">${und.map(r=>`<li><strong>${esc(r.name)}</strong><span>${esc(r.stage)} · ${esc(r.tier)} tier · ${esc(srcNames(r.srcs))}</span></li>`).join("") || "<li class='muted'>None</li>"}</ul></div>
+  </div>`;
+};
+R.devtools = () => { const t = devtoolsView(); return `<h3>Developer AI and shadow AI</h3>
+  <p class="hint">Sanctioned enterprise tools separated from unknown or unmanaged use.</p>
+  <div class="tools-grid">${t.map(x=>`<div class="tool ${/sanctioned/i.test(x.status) && !/un/i.test(x.status) ? "ok" : "warn"}">
+    <div class="tool-top"><strong>${esc(x.name)}</strong><span class="risk-l rl-${esc(String(x.risk).toLowerCase())}">${esc(x.risk)}</span></div>
+    <div class="muted">${esc(x.users)} · ${esc(x.status)}</div><div>Data: ${esc(x.data)}</div>${chips(x.srcs)}</div>`).join("") || '<p class="empty">No developer AI tools in the evidence in scope.</p>'}</div>
+  <p class="fine" style="margin-top:12px">Optional discovery: authorized identity, CASB, proxy, Git and cloud evidence can confirm or refute unknown usage.</p>`; };
+R.unknowns = () => { const u = unknownRegister(); return `<h3>Critical UNKNOWNs and evidence owners</h3>
+  <p class="hint">${u.length} open items. UNKNOWN is valid when it has an owner and a date.</p>
+  <div class="table-wrap"><table class="dense">
+    <tr><th>What is unknown</th><th>Evidence that resolves it</th><th>Owner</th><th>Due</th></tr>
+    ${u.map(x=>`<tr><td title="${esc(x.why)}">${esc(trimEnd(x.what))}${x.src==="review"?' <span class="chip">Review</span>':x.src==="gap"?' <span class="chip">Gap</span>':""}</td><td>${esc(x.resolve)}</td><td>${esc(x.owner)}</td><td class="nowrap">${esc(x.due)}</td></tr>`).join("")}
+  </table></div>`; };
+function laneData(){
+  const risks = assessedRisks(), inv = state.out.inventory||[];
+  const block = g => risks.filter(r=>r.gate===g);
+  return ["Low","Medium","High"].map(t => ({t, assets:inv.filter(r=>r.tier===t), steps:TIER_PATH[t].map(g=>({g, n:STEP[g].n, who:STEP[g].who, b:block(g)}))}));
+}
+R.opmodel = () => {
+  const lanes = laneData();
+  return `<h3>Target governance operating model</h3>
+  <p class="hint" style="margin-bottom:10px">Every AI system follows a path. The riskier it is, the more checks it passes. Hover a step to see who approves it and what blocks it.</p>
+  <div class="lanes">${lanes.map(l=>`<div class="lane">
+    <div class="lane-h"><span class="tier t-${l.t.toLowerCase()}">${LANE[l.t].label}</span>
+      <span class="muted" title="${l.assets.map(r=>esc(r.name)).join(", ")}">${l.assets.length} system${l.assets.length===1?"":"s"} · ${LANE[l.t].why}${l.assets[0]?` · e.g. ${esc(l.assets[0].name)}`:""}</span>
+      <span class="lane-n">${l.steps.length} steps</span></div>
+    <div class="steps-row">${l.steps.map((x,i)=>`${i?'<span class="arr" aria-hidden="true">→</span>':""}<span class="stp${x.b.length?" blk":""}" title="${x.g} · Approved by: ${esc(x.who)}${x.b.length?` · Blocked by: ${x.b.map(r=>r.id).join(", ")}`:""}">${x.n}${x.b.length?` <em>${x.b.length}</em>`:""}</span>`).join("")}</div>
+  </div>`).join("")}</div>
+  <div class="lane-leg"><span><i class="sw blk"></i>Blocked today: open conditions must be fixed first (number = how many)</span><span><i class="sw"></i>Not blocked</span></div>
+  <h4 class="om-h" style="margin-top:14px!important">What has to change first</h4>
+  <div class="chg">${CURRENT.slice(0,3).map(c=>`<div><b>${c.c}</b><span class="now">Today: ${c.now}</span><span class="tgt">Target: ${c.target}</span></div>`).join("")}</div>
+  <p class="fine" style="margin-top:8px">Also changing: ${CURRENT.slice(3).map(c=>c.c.toLowerCase()).join(", ")}. Full list in the PDF report.</p>`;
+};
+
+
+
+/* ================= DELIVERABLE EXPLANATIONS ================= */
+const EXPLAIN = {
+  summary:["What it is: one page for the sponsor with the size of the AI estate, the main gaps and the proposed decision.","Why it matters: it leads with the decision leadership must make, not the catalog."],
+  inventory:["What it is: every AI initiative and tool with its business and technical owner, data class, tier and governance status.","Why it matters: you can’t govern what has no accountable owner."],
+  devtools:["What it is: sanctioned developer AI tools separated from unknown or unmanaged use.","Why it matters: developer tools are where code and data most often leave unnoticed."],
+  risk:["What it is: the priority conditions, each with a risk event, owner, required condition, disposition and next gate.","Why it matters: a finding is only useful when someone owns it and knows what must be true next."],
+  opmodel:["What it is: the path each AI system follows, with more checks for riskier systems, and what blocks it today.","Why it matters: risky AI gets full scrutiny while low-risk use stays fast."],
+  roadmap:["What it is: 0–4 readiness by domain and a 30/60/90/180-day plan shaped by the review decisions.","Why it matters: it turns findings into sequenced, owned actions."],
+  declared:["What it is: what leadership declared in pre-work compared with what the evidence shows.","Why it matters: governance must cover real use, not only known projects."],
+  unknowns:["What it is: open questions, each with the evidence that resolves it, an owner and a due date.","Why it matters: uncertainty becomes a task instead of a blind spot."],
+  controls:["What it is: proposed controls mapped to NIST AI RMF core functions.","Why it matters: it links each condition to a recognized framework."],
+  discovery:["What it is: the raw AI signals found in the evidence, with source and basis.","Why it matters: it shows the evidence trail behind the register."],
+  gate:["What it is: the engagement lead’s decisions and any overrides of the agents’ proposals.","Why it matters: it keeps an audit trail of human judgement."],
+  intake:["What it is: each evidence source with its availability, owner and blind spot.","Why it matters: it shows how complete the picture is."]
+};
+
+/* ================= PDF SUMMARY REPORT (print to PDF) ================= */
+function rpShell(n, eyebrow, title, sub, body, total, legend){
+  return `<section class="rp">
+    <div class="rp-top"><span>SOLTELCO · ENTERPRISE AI SERVICES</span><span>soltelco.com</span></div>
+    <div class="rp-eyebrow">${eyebrow}</div><div class="rp-badge">SYNTHETIC DEMO DATA</div>
+    <h1>${title}</h1><p class="rp-sub">${sub}</p>
+    ${body}
+    <div class="rp-foot"><span>AI Governance Readiness Summary · Arenal Play (fictional)</span>${legend ? '<span class="rp-leg"><b>FACT</b> confirmed · <b>ASSUMPTION</b> needs confirmation · <b>UNKNOWN</b> open, has an owner</span>' : ""}<span>${n} / ${total}</span></div>
+  </section>`;
+}
+function buildReport(){
+  const o = state.out, inv = o.inventory||[], ed = execDisposition(), date = new Date().toISOString().slice(0,10);
+  const rr = reviewRisks(), med = assessedRisks().filter(r=>r.sev==="medium"||r.sev==="low");
+  const tools = devtoolsView(), items = roadItems(), unk = unknownRegister();
+  const sc = o.scores||[], valid = sc.filter(x=>coverage(x.d).pct>0);
+  const avg = valid.length ? (valid.reduce((a,b)=>a+b.s,0)/valid.length).toFixed(1) : "–";
+  const teams = new Set(inv.map(r=>r.biz).filter(b=>b && !String(b).startsWith("~"))).size;
+  const own = v => !v ? "UNKNOWN" : String(v).replace(/^~/,"") + (String(v).startsWith("~") ? " (assumed)" : "");
+  const riskCls = r => ({high:"red",elevated:"amber",moderate:"blue",low:"teal"}[String(r).toLowerCase()]||"blue");
+  const pages = [];
+  const T = 10;
+  /* cover */
+  pages.push(`<section class="rp cover">
+    <div class="rp-top"><span>SOLTELCO · ENTERPRISE AI SERVICES</span><span>soltelco.com</span></div>
+    <div class="cv-main"><h1>AI Governance Readiness — Summary Report</h1>
+      <p>Arenal Play (fictional online casino operator) · generated ${date}</p>
+      <div class="cv-chips"><span>AI ESTATE</span><span>RISK + OWNERSHIP</span><span>90–180 DAY ROADMAP</span></div>
+      <dl class="cv-meta"><dt>Run mode</dt><dd>${esc(LABEL[state.runProvider])}${Object.keys(state.fallback).length?" (scripted fallback on some steps)":""}</dd>
+        <dt>Evidence</dt><dd>${esc(scopeText())}, plus customer pre-work</dd>
+        <dt>Decision supported</dt><dd>${esc(SCOPE.decision)}</dd></dl></div>
+    <div class="cv-orb"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="cv-foot">Synthetic demo data — not a finding about any real organization · 1 / ${T}</div>
+  </section>`);
+  /* 01 executive */
+  pages.push(rpShell(2,"DELIVERABLE 01","Executive Governance Readiness View","What leadership needs to decide, based on the evidence in scope.",`
+    <div class="r4">${[[inv.length,"AI assets","teal"],[ownerGaps(inv).length,"ownership gaps","blue"],[extConcerns(inv).length,"external-data concerns","violet"],[unknownTools(inv).length,"unknown tools","amber"]].map(([v,l,c])=>`<div class="rc t-${c}"><b>${l}</b><span class="big">${v}</span></div>`).join("")}</div>
+    <div class="r2">
+      <div class="rc t-teal"><b>EXECUTIVE INTERPRETATION</b><p>AI use is active across ${teams} teams, but the estate is not yet represented by one accountable inventory. ${ownerGaps(inv).length} of ${inv.length} AI assets lack a confirmed owner, and ${inv.filter(r=>!r.declared).length} were found in evidence but not declared in pre-work. The highest-value first action is to establish ownership and a sanctioned developer-AI control model before expanding technical discovery.</p>
+        <p class="rp-note">Declared in pre-work: ${inv.filter(isDeclared).length} · found in evidence: ${inv.length} · not declared: ${inv.filter(r=>!r.declared).length}</p></div>
+      <div class="rc t-green soft"><b>PROPOSED DECISION · ${esc(ed.v.toUpperCase())}</b><p>${esc(ed.why)}</p><ul>${(o.leadership||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="rp-note">Decision support only; the executive sponsor makes the final call.</p></div>
+    </div>`,T));
+  /* 02 register */
+  pages.push(rpShell(3,"DELIVERABLE 02","AI Estate & Ownership Register","Authoritative owner, lifecycle and evidence status for each AI initiative and tool.",`
+    <table class="rt"><tr><th>AI / use case</th><th>Business owner</th><th>Technical owner</th><th>Pattern</th><th>Data</th><th>Stage</th><th>Tier</th><th>Governance status</th><th>Pre-work</th></tr>
+    ${inv.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td class="${r.biz?"":"u"}">${esc(own(r.biz))}</td><td class="${r.tech?"":"u"}">${esc(own(r.tech))}</td><td>${esc(r.tool)}</td><td>${esc(r.cls)}</td><td>${esc(r.stage)}</td><td>${esc(r.tier)}</td><td>${esc(r.status)}</td><td>${r.declared?"Declared":"New"}</td></tr>`).join("")}</table>`,T,true));
+  /* 03 developer AI */
+  pages.push(rpShell(4,"DELIVERABLE 03","Developer AI / Shadow AI View","Sanctioned enterprise tools separated from unknown or unmanaged usage.",`
+    <div class="rtools">${tools.map(t=>`<div class="rc t-${riskCls(t.risk)}"><b>${esc(t.name)}</b><p>${esc(t.users)} · ${esc(t.status)} · Data: ${esc(t.data)} · Risk: <strong>${esc(String(t.risk).toUpperCase())}</strong></p></div>`).join("")}</div>
+    <div class="rp-strip">OPTIONAL DISCOVERY · AUTHORIZED IAM / CASB / PROXY / GIT / CLOUD EVIDENCE CAN CONFIRM OR REFUTE UNKNOWN USAGE</div>`,T));
+  /* 04 risks */
+  pages.push(rpShell(5,"DELIVERABLE 04","Priority Risks & Conditions","Each condition names the risk owner and what must be true before the next gate.",`
+    <div class="rrisks">${rr.map(r=>`<div class="rc t-${r.sev==="critical"?"red":"amber"}"><b>${esc(r.id)} · ${r.sev.toUpperCase()} · ${esc(r.owner)}</b><p class="ev">${esc(r.title)}</p>
+      <p><strong>Condition:</strong> ${esc(endDot(r.cond))}</p><p class="rp-note">Evidence: ${esc(srcNames(r.srcs))}</p><p class="rp-note">${esc(DISP[dispOf(r)])}${dispOf(r)!==(r.disp||"remediate")?" (override)":""} · Next gate ${esc(gateName(r.gate))}</p></div>`).join("")}</div>
+    ${med.length ? `<p class="rp-note" style="margin-top:8px">Medium: ${med.map(r=>`${esc(r.id)} ${esc(r.title)}`).join(" · ")}</p>` : ""}`,T,true));
+  /* 05 operating model */
+  const risks = assessedRisks();
+  const lanes = laneData();
+  pages.push(rpShell(6,"DELIVERABLE 05","Target AI Governance Operating Model","Every AI system follows a path. The riskier it is, the more checks it passes.",`
+    <div class="rlanes">${lanes.map(l=>`<div class="rc t-${{Low:"teal",Medium:"amber",High:"red"}[l.t]}"><b>${LANE[l.t].label.toUpperCase()} · ${l.assets.length} SYSTEM${l.assets.length===1?"":"S"} · ${esc(LANE[l.t].why)}</b>
+      <div class="rsteps">${l.steps.map((x,i)=>`${i?'<span class="ra">→</span>':""}<span class="rs${x.b.length?" blk":""}">${x.n}${x.b.length?` · ${x.b.length}`:""}<small>${x.g}</small></span>`).join("")}</div></div>`).join("")}</div>
+    <p class="rp-note">Red steps are blocked today by open conditions (number = how many). Step codes G0–G7 shown under each step.</p>
+    <div class="rp-h" style="margin-top:.12in"><span>✓</span>WHAT HAS TO CHANGE</div>
+    <table class="rt"><tr><th>Control</th><th>Today (pre-work)</th><th>Target</th></tr>${CURRENT.map(c=>`<tr><td>${c.c}</td><td>${c.now}</td><td>${c.target}</td></tr>`).join("")}</table>`,T));
+  /* 06a scorecard */
+  pages.push(rpShell(7,"DELIVERABLE 06 · PART 1","Governance Readiness Scorecard",`Average ${avg} of 4 across domains with evidence. A high score is not “ISO certified”; it means evidenced and repeatable.`,`
+    <div class="rleg">${SCALE.map((l,i)=>`<div class="lv${i}"><b>${i} · ${l}</b><span>${SCALE_DEF[i]}</span></div>`).join("")}</div>
+    <div class="rscore">${sc.map(x=>{ const c = coverage(x.d), none = c.pct===0; return `<div><span class="nm">${esc(x.d)}<em>${none?"No evidence in scope":esc(x.why||"")}</em></span><span class="bar"><i class="lv${none?0:x.s}" style="width:${none?0:Math.max(x.s/4*100,2)}%"></i></span><span class="v">${none?"–":`${x.s} · ${SCALE[x.s]}`}</span><span class="cv">${c.label}</span></div>`; }).join("")}</div>`,T));
+  /* 06b roadmap */
+  pages.push(rpShell(8,"DELIVERABLE 06 · PART 2","30/60/90/180-Day Implementation Roadmap","Sequencing that turns assessment findings into accountable implementation.",`
+    <div class="r4 rroad">${BUCKETS.map((b,i)=>`<div class="rc t-${["teal","blue","violet","amber"][i]}"><b>${b.toUpperCase()}</b><ul>${items.filter(x=>x.bucket===i).map(x=>`<li>${esc(x.t)}${x.r?` <span>${esc(x.r)}</span>`:""}</li>`).join("")}</ul></div>`).join("")}</div>
+    <div class="rc t-green soft"><b>EXECUTIVE RECOMMENDATION · ${esc(ed.v.toUpperCase())} (PROPOSED)</b><p>Implement governance foundations now; use technical Shadow AI discovery only where the remaining UNKNOWNs materially change risk or control design.</p></div>`,T));
+  /* appendix A: unknowns */
+  pages.push(rpShell(9,"APPENDIX A","Critical UNKNOWNs and Evidence Owners","UNKNOWN is a valid answer when it has an owner and a date.",`
+    <table class="rt"><tr><th>What is unknown</th><th>Evidence that resolves it</th><th>Owner</th><th>Due</th></tr>
+    ${unk.slice(0,16).map(x=>`<tr><td>${esc(trimEnd(x.what))}</td><td>${esc(x.resolve)}</td><td>${esc(x.owner)}</td><td>${esc(x.due)}</td></tr>`).join("")}</table>
+    ${unk.length>16?`<p class="rp-note">+${unk.length-16} more in the demo’s UNKNOWN register.</p>`:""}`,T,true));
+  /* appendix B: review record + evidence */
+  pages.push(rpShell(10,"APPENDIX B","Review Record and Evidence Coverage","Human decisions on the agents’ proposals, and the evidence each conclusion rests on.",`
+    <div class="r2 tight">
+      <table class="rt"><tr><th>ID</th><th>Rating decision</th><th>Disposition</th><th>Proposed</th></tr>${rr.map(r=>`<tr class="${dispOf(r)!==(r.disp||"remediate")||["downgrade","evidence"].includes(state.decisions[r.id])?"ov":""}"><td><b>${esc(r.id)}</b></td><td>${esc(DLABEL[state.decisions[r.id]]||"")}</td><td>${esc(DISP[dispOf(r)])}</td><td>${esc(DISP[r.disp||"remediate"])}</td></tr>`).join("")}</table>
+      <table class="rt"><tr><th>ID</th><th>Evidence source</th><th>Availability</th><th>Owner</th></tr>${SOURCES.map(s=>`<tr><td><b>${s.code}</b></td><td>${esc(s.name)}</td><td>${{available:"Available",partial:"Partial",none:"Not available"}[avail[s.id]]}</td><td>${esc(s.owner)}</td></tr>`).join("")}</table>
+    </div>
+    <p class="rp-note">Generated by the AI Governance Readiness demo (Governance Analyzer). Synthetic data for illustration; scores and figures are not findings about any real organization.</p>`,T));
+  return pages.join("");
+}
+function exportPdf(){
+  if(!state.done.roadmap){ setStatus("Run the assessment first; the PDF summarizes its results."); return; }
+  $("report").innerHTML = buildReport();
+  const prev = document.title;
+  document.title = `Arenal-Play_AI-Governance-Readiness-Summary_${new Date().toISOString().slice(0,10)}`;
+  const restore = () => { document.title = prev; window.removeEventListener("afterprint", restore); };
+  window.addEventListener("afterprint", restore);
+  setStatus("Print dialog opened: choose “Save as PDF”. Chrome or Edge gives the best result.");
+  setTimeout(() => window.print(), 60);
+}
+/* ================= APP VIEW (v3 tabbed shell) ================= */
+const AGENT_IO = {
+  intake:["Scope and decision, pre-work, evidence availability","Evidence register with owners, coverage and blind spots"],
+  discovery:["Raw evidence from every source in scope","AI signals, each with its source and basis tag"],
+  inventory:["Signals, evidence and the pre-work register","AI estate register with owners, tiers and declared vs discovered"],
+  risk:["Signals and the AI estate register","Conditions: owner, required condition, disposition and next gate"],
+  controls:["Critical conditions register","Controls mapped to NIST AI RMF functions"],
+  gate:["Critical and high conditions","Your rating decision and disposition for each"],
+  roadmap:["Everything above plus your review decisions","0–4 scorecard, roadmap, proposed executive disposition"]
+};
+/* main path mirrors Example Project Deliverables 01–06; the rest sits under "More detail" */
+const RESULT_NAV = [
+  ["summary","Executive view","01"],["inventory","AI estate register","02"],["devtools","Developer AI","03"],
+  ["risk","Risks and conditions","04"],["opmodel","Operating model","05"],["roadmap","Readiness and roadmap","06"]
+];
+const RESULT_MORE = [
+  ["declared","Declared vs discovered"],["unknowns","UNKNOWN register"],["controls","Controls"],
+  ["discovery","Signals"],["gate","Review record"],["intake","Evidence register"]
+];
+state.view = "about"; state.stage = "ready"; state.result = "summary";
+const doneCount = () => AGENTS.filter(a => state.done[a.id]).length;
+
+function showView(v){
+  if(v === "results" && !state.done.roadmap && state.view !== "results"){ /* allow viewing locked state */ }
+  state.view = v;
+  document.querySelectorAll(".step").forEach(s => s.setAttribute("aria-selected", String(s.dataset.view === v)));
+  ["about","evidence","run","results"].forEach(id => { $("v-"+id).hidden = id !== v; });
+  if(v === "results") renderResults();
+  if(v === "run") renderStage();
+}
+function updateStepper(){
+  const n = doneCount(), active = AGENTS.findIndex(a => a.id === state.active);
+  $("s-evidence").textContent = scopeText();
+  const run = document.querySelector('.step[data-view="run"]');
+  run.classList.toggle("busy", state.busy); run.classList.toggle("wait", state.waiting); run.classList.toggle("done", !!state.done.roadmap);
+  $("s-run").textContent = state.done.roadmap ? "Complete" : state.waiting ? "Waiting for your review" : state.busy ? `Agent ${active+1} of ${AGENTS.length} working` : n ? `${n} of ${AGENTS.length} agents done` : "Ready to run";
+  const res = document.querySelector('.step[data-view="results"]');
+  res.classList.toggle("done", !!state.done.roadmap);
+  $("s-results").textContent = state.done.roadmap ? "Executive summary ready" : "After the run";
+  document.querySelector('.step[data-view="evidence"]').classList.toggle("done", state.locked);
+  $("context").innerHTML = `<span class="ctx"><b>Arenal Play</b> (fictional)</span><span class="ctx"><b>${CARD_SOURCES.filter(s=>avail[s.id]!=="none").length}/${CARD_SOURCES.length}</b> sources + pre-work</span><span class="ctx">${prov.name==="demo" ? "<b>Demo</b> mode" : `<b>${LABEL[prov.name]}</b> ${esc(prov.model[prov.name])}`}</span>`;
+  $("railcount").textContent = `${n} / ${AGENTS.length}`;
+  $("prog").style.width = (n / AGENTS.length * 100) + "%";
+}
+
+/* ----- rail + stage ----- */
+function agentStatus(a){
+  if(state.done[a.id]) return [state.fallback[a.id] ? "done fb" : "done", state.fallback[a.id] ? "Done, fallback" : state.live[a.id] ? "Done, live" : "Done"];
+  if(a.id === "gate" && state.waiting) return ["waiting","Your turn"];
+  if(state.active === a.id) return ["running","Working"];
+  return ["", a.human ? "Your step" : "Queued"];
+}
+function renderRail(){
+  $("rail").innerHTML = AGENTS.map((a,i) => {
+    const [cls, st] = agentStatus(a), open = state.done[a.id] || (a.id==="gate" && state.waiting) || state.active===a.id;
+    return `<li class="${cls} ${a.human?"human":""}"><button type="button" data-agent="${a.id}" ${open?"":'aria-disabled="true"'} aria-current="${state.stage===a.id}">
+      <span class="dot">${state.done[a.id] ? "✓" : i+1}</span>
+      <span><span class="nm">${a.name}</span><span class="meta"><span>${st}</span><span class="how ${a.how[0]}">${a.how[1]}</span></span></span>
+    </button></li>`;
+  }).join("");
+  document.querySelectorAll("#rail button").forEach(b => b.addEventListener("click", () => {
+    if(b.getAttribute("aria-disabled") === "true") return;
+    state.stage = b.dataset.agent; renderRail(); renderStage();
+  }));
+}
+function renderStage(){
+  const id = state.stage;
+  if(id === "ready"){
+    $("stageh").innerHTML = `<span class="ttl">Ready to run</span><span class="sub">7 agents · you review at step 6</span>`;
+    const liveNote = prov.name === "demo" ? "Demo mode runs the pre-built assessment. No API key needed."
+      : prov.connected[prov.name] ? `Live mode: agents call ${LABEL[prov.name]} (${esc(prov.model[prov.name])}) with the synthetic evidence in scope.`
+      : `${LABEL[prov.name]} is selected but not connected yet. Add your API key at the top right, or switch to Demo.`;
+    $("stage").innerHTML = `<div class="ready">
+      <h2>Run the readiness assessment</h2>
+      <p>Seven agents read the scope, the pre-work and the evidence, build the AI estate register, write each condition with its owner and next gate, and map controls. The run pauses for your review, then builds the scorecard, roadmap and executive disposition.</p>
+      <div class="scope">
+        <div><b>${CARD_SOURCES.filter(s=>avail[s.id]!=="none").length}/${CARD_SOURCES.length}</b><span>evidence sources, plus pre-work</span></div>
+        <div><b>${esc(LABEL[prov.name])}</b><span>${prov.name==="demo" ? "pre-built outputs" : "live model calls"}</span></div>
+        <div><b>7</b><span>agents, 1 human review</span></div>
+      </div>
+      <p class="hint">${liveNote}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary" type="button" data-act="run">Run assessment</button>
+        <button class="btn" type="button" data-act="step">Step through one agent at a time</button>
+        <button class="btn quiet" type="button" data-go="evidence">Change evidence</button>
+      </div></div>`;
+    wireActs($("stage"));
+    return;
+  }
+  const i = AGENTS.findIndex(a => a.id === id), a = AGENTS[i];
+  const canInspect = PROMPTS[id] && state.io[id] && state.active !== id;
+  $("stageh").innerHTML = `<span class="rid">${String(i+1).padStart(2,"0")}</span><span class="ttl">${a.name}</span><span class="how ${a.how[0]}">${a.how[1]}</span>${canInspect ? `<button class="btn small" type="button" id="promptBtn">Prompt and response</button>` : ""}`;
+  if(canInspect) $("promptBtn").addEventListener("click", () => openInspector(id));
+  const io = `<div class="io"><div><b>Reads</b>${AGENT_IO[id][0]}</div><div><b>Produces</b>${AGENT_IO[id][1]}</div></div>`;
+  let body;
+  if(state.active === id) body = `<div class="working"><span class="spin" aria-hidden="true"></span>${state.runProvider === "demo" || id === "intake" ? `${a.name} is working through the evidence…` : `Waiting for ${LABEL[state.runProvider]} to respond…`}</div>`;
+  else if(id === "gate" && !state.done.gate && state.waiting) body = R.gate();
+  else if(state.done[id]) body = previewBlock(id);
+  else body = `<p class="empty">This agent hasn’t run yet.</p>`;
+  const back = state.waiting && id !== "gate" ? `<p class="note" style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 0 14px;font-size:13px;color:var(--ink-2);background:var(--amber-soft);border-radius:10px;padding:10px 12px">The run is paused for your review.<button class="btn small" type="button" id="toGate">Back to review</button></p>` : "";
+  $("stage").innerHTML = back + io + body;
+  if(back) $("toGate").addEventListener("click", () => { state.stage = "gate"; renderRail(); renderStage(); });
+  $("stage").querySelectorAll("[data-full]").forEach(b => b.addEventListener("click", () => { state.result = b.dataset.full; if(b.dataset.full === "roadmap") state.rsub = "score"; showView("results"); }));
+  $("stage").scrollTop = 0;
+  if(id === "gate" && !state.done.gate){
+    const b = $("approve"); if(b) b.addEventListener("click", approveGate);
+    state.pending = state.pending || {}; state.pendingRate = state.pendingRate || {};
+    reviewRisks().forEach(r => {
+      /* restore choices made before the stage re-rendered */
+      if(state.pending[r.id]){ const sel = document.querySelector(`select[name="p-${CSS.escape(r.id)}"]`); if(sel) sel.value = state.pending[r.id]; }
+      if(state.pendingRate[r.id]){ const rb = document.querySelector(`input[name="d-${CSS.escape(r.id)}"][value="${state.pendingRate[r.id]}"]`); if(rb) rb.checked = true; }
+      refreshDecision(r);
+    });
+    document.querySelectorAll('#stage select[name^="p-"]').forEach(sel => sel.addEventListener("change", () => {
+      const r = reviewRisks().find(x => "p-" + x.id === sel.name); if(!r) return;
+      state.pending[r.id] = sel.value; refreshDecision(r);
+    }));
+    document.querySelectorAll('#stage input[name^="d-"]').forEach(rb => rb.addEventListener("change", () => {
+      const r = reviewRisks().find(x => "d-" + x.id === rb.name); if(!r) return;
+      state.pendingRate[r.id] = rb.value; refreshDecision(r);
+    }));
+  }
+}
+
+/* ----- results ----- */
+function renderResults(){
+  const w = $("resultsWrap");
+  if(!state.done.roadmap){
+    w.style.display = "block";
+    w.innerHTML = `<div class="locked"><h2>Results appear after the run</h2><p>Run the assessment to produce the executive summary, risk register, AI inventory, controls and roadmap.</p><button class="btn primary" type="button" data-act="run">Run assessment</button></div>`;
+    wireActs(w); return;
+  }
+  w.style.display = "";
+  w.innerHTML = `<div class="panel"><div class="subnav compact" role="tablist" aria-label="Result sections">
+      <div class="navgrp">Deliverables</div>
+      ${RESULT_NAV.map(([id,l,n]) => `<button type="button" role="tab" data-res="${id}" aria-selected="${state.result===id}"><span class="dn">${n}</span>${l}</button>`).join("")}
+      <div class="navgrp more">More detail</div>
+      ${RESULT_MORE.map(([id,l]) => `<button type="button" role="tab" class="minor" data-res="${id}" aria-selected="${state.result===id}">${l}</button>`).join("")}
+      <div class="explain" aria-live="polite"><b>${esc(([...RESULT_NAV,...RESULT_MORE].find(x=>x[0]===state.result)||["",""])[1])}</b>${EXPLAIN[state.result] ? EXPLAIN[state.result].map(x=>{ const [k,...rest] = x.split(": "); return `<p><em>${esc(k)}:</em> ${esc(rest.join(": "))}</p>`; }).join("") : ""}</div>
+    </div></div>
+    <div class="panel"><div class="scroll pad out" id="resBody">${R[state.result]()}</div></div>`;
+  w.querySelectorAll("[data-res]").forEach(b => b.addEventListener("click", () => { state.result = b.dataset.res; renderResults(); }));
+  w.querySelectorAll("[data-res-go]").forEach(b => b.addEventListener("click", () => { state.result = b.dataset.resGo; renderResults(); }));
+  w.querySelectorAll("[data-rsub]").forEach(b => b.addEventListener("click", () => { state.rsub = b.dataset.rsub; renderResults(); }));
+}
+
+/* ----- shared actions ----- */
+function wireActs(root){
+  root.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => b.dataset.act === "run" ? startRun() : stepRun()));
+  root.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => showView(b.dataset.go)));
+}
+function refresh(){ renderRail(); updateStepper(); syncButtons(); if(state.view === "run") renderStage(); }
+
+/* ================= RUNNER ================= */
+function syncButtons(){
+  const finished = state.next >= AGENTS.length;
+  $("runAll").disabled = state.busy || state.waiting || finished;
+  $("step").disabled = state.busy || state.waiting || finished;
+  $("exportPdf").disabled = !state.done.roadmap;
+  $("exportPdf").title = state.done.roadmap ? "Export a PDF summary report" : "Available after the run";
+  document.querySelectorAll(".tri button").forEach(i => i.disabled = state.locked);
+  $("allSrc").disabled = $("minSrc").disabled = $("pwSrc").disabled = state.locked;
+  document.querySelectorAll("#seg button").forEach(b => b.disabled = state.locked);
+}
+function preflight(){
+  if(!CARD_SOURCES.some(s=>avail[s.id]!=="none")){ setStatus("Make at least one evidence source available first."); showView("evidence"); return false; }
+  if(prov.name !== "demo" && !prov.connected[prov.name]){ setStatus(`Connect to ${LABEL[prov.name]} first, or switch to Demo.`); openKeys(true); return false; }
+  state.runProvider = prov.name;
+  return true;
+}
+async function runAgent(i){
+  const a = AGENTS[i];
+  if(i === 0 && !state.locked && !preflight()) return false;
+  state.busy = true; state.active = a.id; state.locked = true; state.stage = a.id; startClock();
+  refresh(); setStatus(`${a.name} is working…`);
+  if(a.id === "gate"){
+    state.busy = false; state.active = null; state.waiting = true;
+    log("Review", `Waiting for the engagement lead on ${reviewRisks().length} conditions`, "human");
+    setStatus("Paused for your review. Record your decisions to continue.");
+    refresh(); if(state.view !== "run") showView("run");
+    return false;
+  }
+  if(a.id === "intake"){ for(const l of intakeLines()){ log(a.name, l); await sleep(pace); } }
+  else if(state.runProvider === "demo"){ if(PROMPTS[a.id]) recordIO(a.id, {mode:"preview"}); demoOut(a.id); for(const l of demoLines(a.id)){ log(a.name, l); await sleep(pace); } }
+  else { await liveStep(a); }
+  state.done[a.id] = true; state.active = null; state.busy = false; state.next = i + 1;
+  refresh();
+  if(a.id === "roadmap"){
+    clearInterval(clockTimer); setStatus("Assessment complete. Opening the executive summary.");
+    state.result = "summary";
+    await sleep(reduce ? 0 : 900); showView("results"); setStatus("Assessment complete.");
+  } else setStatus(`${a.name} finished.`);
+  return true;
+}
+async function runAll(){
+  state.auto = true;
+  while(state.next < AGENTS.length){
+    const cont = await runAgent(state.next);
+    if(!cont) return;
+    await sleep(reduce ? 0 : 250);
+  }
+  state.auto = false;
+}
+function startRun(){ if($("runAll").disabled) return; if(state.next === 0 && !preflight()) return; showView("run"); runAll(); }
+function stepRun(){ if($("step").disabled) return; if(state.next === 0 && !preflight()) return; state.auto = false; showView("run"); runAgent(state.next); }
+function refreshDecision(r){
+  const box = $("dec-" + r.id), flag = $("rate-" + r.id);
+  if(box){
+    const choice = (state.pending && state.pending[r.id]) || null;
+    box.innerHTML = decHtml(r, choice, false);
+    box.classList.toggle("ovr", !!choice && choice !== (r.disp || "remediate"));
+  }
+  if(flag) flag.innerHTML = ratingFlag(r);
+}
+async function approveGate(){
+  reviewRisks().forEach(r => {
+    const el = document.querySelector(`input[name="d-${CSS.escape(r.id)}"]:checked`);
+    state.decisions[r.id] = el ? el.value : "accept";
+    const sel = document.querySelector(`select[name="p-${CSS.escape(r.id)}"]`);
+    state.disp[r.id] = sel ? sel.value : (r.disp || "remediate");
+  });
+  state.waiting = false; state.done.gate = true; state.next = AGENTS.findIndex(a=>a.id==="gate") + 1;
+  const words = {accept:"accepted", downgrade:"downgraded", evidence:"sent back for evidence"};
+  for(const r of reviewRisks()){ log("Review", `${r.id} ${words[state.decisions[r.id]]}; disposition ${DISP[dispOf(r)].toLowerCase()}${dispOf(r)!==(r.disp||"remediate") ? `, overrides proposed ${DISP[r.disp||"remediate"].toLowerCase()}` : ""}`, "human"); await sleep(reduce?30:100); }
+  refresh();
+  if(state.auto) runAll(); else setStatus("Review recorded. Press Next agent to build the roadmap.");
+}
+function reset(){
+  clearInterval(clockTimer); t0 = null; $("clock").textContent = "00:00";
+  const v = state.view; state = fresh(); state.view = v; state.stage = "ready"; state.result = "summary";
+  $("trace").innerHTML = '<li><span class="empty">The trace fills in as each agent works.</span></li>';
+  renderCards(); refresh(); readyStatus();
+  if(v === "results") renderResults();
+}
+
+/* ================= EVIDENCE ================= */
+function renderCards(){
+  $("prework").innerHTML = `
+    <div class="panel-h"><h3><span class="ecode">PW</span> Pre-work (customer-declared)</h3><button class="linkbtn" type="button" data-detail="prework">Workbook</button></div>
+    <div class="scroll pad pw">
+      <dl>
+        <dt>Sponsor</dt><dd>${esc(SCOPE.sponsor)}</dd>
+        <dt>Scope</dt><dd>${esc(SCOPE.scope)}</dd>
+        <dt>Driver</dt><dd>${esc(SCOPE.driver)}</dd>
+        <dt>Decision</dt><dd><strong>${esc(SCOPE.decision)}</strong></dd>
+        <dt>Excluded</dt><dd>${esc(SCOPE.exclusions)}</dd>
+      </dl>
+      <h4>Declared AI assets (${DECLARED.length})</h4>
+      <ul>${DECLARED.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>
+      <p class="fine">Plus current controls and known UNKNOWNs. Always in scope.</p>
+    </div>`;
+  $("cards").innerHTML = CARD_SOURCES.map(s => {
+    const feeds = FINDINGS.filter(f=>f.srcs.includes(s.id)).length, a = avail[s.id];
+    return `<article class="card av-${a}" id="card-${s.id}">
+      <div class="card-top">
+        <span class="ecode" title="Evidence ID">${s.code}</span>
+        <div class="ico c-${s.color}" aria-hidden="true"><svg viewBox="0 0 24 24">${ICONS[s.icon]}</svg></div>
+        <div class="card-t"><small>${s.cat} · ${s.owner}</small><h3>${s.name}</h3></div>
+      </div>
+      <div class="stat-line"><b>${s.stat}</b><span>${s.unit}</span></div>
+      <p>${s.proves}</p>
+      <div class="card-foot">
+        <div class="tri" role="radiogroup" aria-label="Availability of ${s.name}">
+          ${[["available","Available"],["partial","Partial"],["none","None"]].map(([v,l])=>`<button type="button" role="radio" data-src="${s.id}" data-av="${v}" aria-checked="${a===v}">${l}</button>`).join("")}
+        </div>
+        <button class="linkbtn" type="button" data-detail="${s.id}">Details</button>
+      </div>
+    </article>`;
+  }).join("");
+  document.querySelectorAll(".tri button").forEach(b => b.addEventListener("click", () => {
+    if(state.locked) return;
+    avail[b.dataset.src] = b.dataset.av; syncScope(); renderCards();
+  }));
+  document.querySelectorAll("[data-detail]").forEach(b => b.addEventListener("click", () => openDrawer(b.dataset.detail)));
+  countSources(); syncButtons();
+}
+function countSources(){
+  $("evcount").textContent = scopeText();
+  updateStepper(); if(!state.locked){ readyStatus(); if(state.view === "run") renderStage(); }
+}
+function setPreset(k){ avail = {...PRESETS[k]}; syncScope(); renderCards(); }
+let lastFocus = null;
+function openSheet(title, html, wide){
+  lastFocus = document.activeElement;
+  $("dr-t").textContent = title; $("drBody").innerHTML = html; $("drBody").scrollTop = 0;
+  $("drawer").classList.toggle("wide", !!wide);
+  $("scrim").hidden = false; $("drawer").hidden = false; $("drClose").focus();
+}
+function prettyRaw(raw){
+  try{ return JSON.stringify(parseJSON(raw), null, 2); } catch(e){ return raw; }
+}
+function openInspector(id){
+  const io = state.io[id], a = AGENTS.find(x=>x.id===id);
+  if(!io) return;
+  const size = (io.system.length + io.user.length).toLocaleString();
+  const mode = io.mode === "preview" ? `<span class="m-prev">Demo preview, not sent</span>`
+    : io.error ? `<span class="m-fb">Live call failed, fallback used</span>` : `<span class="m-live">Sent live</span>`;
+  const sys = esc(io.system).split("\n").map(l => /^- /.test(l) ? `<span class="gr">${l}</span>` : l + "\n").join("");
+  const parts = io.parts.map(pt => pt.collapse
+    ? `<details><summary>${esc(pt.label)} · ${pt.text.length.toLocaleString()} characters</summary><pre>${esc(pt.text)}</pre></details>`
+    : `<div class="part"><pre>${pt.label ? esc(pt.label) + ":\n" : ""}${esc(pt.text)}</pre></div>`).join("");
+  let resp, val;
+  if(io.mode === "preview"){
+    resp = `<p class="note">Not sent. Demo mode uses the pre-built output; this is the exact prompt live mode would send with the same evidence and prior outputs.</p>`;
+    val = `<p class="note">Validation runs only on live responses. Switch to Claude or OpenAI to see what it accepts or corrects.</p>`;
+  } else {
+    resp = io.error && !io.raw ? `<p class="note err">${esc(io.error)}</p>` : `${io.error ? `<p class="note err" style="margin-bottom:8px">${esc(io.error)}</p>` : ""}<pre>${esc(prettyRaw(io.raw))}</pre>`;
+    const items = io.error
+      ? [`Rejected: ${io.error}`, "The pre-built output was used for this step and labeled as a scripted fallback"]
+      : ["Parsed as a single JSON object and checked against the schema", `${io.count} item${io.count===1?"":"s"} accepted`, ...(io.notes.length ? io.notes : ["No corrections needed"])];
+    val = `<ul>${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+  }
+  const html = `<div class="insp">
+    <div class="insp-meta">${mode}
+      ${io.mode === "live" ? `<span><b>${esc(LABEL[io.provider])}</b> ${esc(io.model)}</span>` : ""}
+      ${io.ms != null ? `<span><b>${(io.ms/1000).toFixed(1)}s</b> response</span>` : ""}
+      <span><b>${size}</b> prompt characters</span>
+      <button class="btn small" type="button" id="copyPrompt">Copy prompt</button>
+    </div>
+    <h4><span class="k">1</span>System prompt</h4>
+    <pre>${sys}</pre>
+    <p class="fine" style="margin-top:6px">Highlighted lines are the guardrails every agent shares.</p>
+    <h4><span class="k">2</span>User prompt</h4>
+    ${parts}
+    <h4><span class="k">3</span>Model response</h4>
+    ${resp}
+    <h4><span class="k">4</span>Validation</h4>
+    ${val}
+  </div>`;
+  openSheet(`${a.name}: prompt and response`, html, true);
+  $("copyPrompt").addEventListener("click", async () => {
+    const b = $("copyPrompt");
+    try{ await navigator.clipboard.writeText(`SYSTEM PROMPT\n${io.system}\n\nUSER PROMPT\n${io.user}`); b.textContent = "Copied"; }
+    catch(e){ b.textContent = "Copy not allowed here"; }
+    setTimeout(() => { b.textContent = "Copy prompt"; }, 1600);
+  });
+}
+function openDrawer(id){
+  const s = SRC[id];
+  const feeds = FINDINGS.filter(f=>f.srcs.includes(id));
+  $("drBody").innerHTML = `
+    <dl class="dl">
+      <dt>Category</dt><dd>${s.cat}</dd>
+      <dt>Coverage</dt><dd>${s.stat} ${s.unit}</dd>
+      <dt>Proves</dt><dd>${s.proves}</dd>
+      <dt>Blind spot</dt><dd>${s.blind}</dd>
+      <dt>Owner</dt><dd>${s.owner}</dd>
+      <dt>Availability</dt><dd>${availChip(avail[id])}</dd>
+    </dl>
+    <h4>Synthetic sample</h4><pre>${esc(s.raw)}</pre>
+    <h4>Pre-built findings that rely on it</h4>
+    ${feeds.length ? `<ul>${feeds.map(f=>`<li>${esc(f.sig)}</li>`).join("")}</ul>` : `<p class="muted">None directly.</p>`}`;
+  openSheet(`${s.code} · ${s.name}`, $("drBody").innerHTML, false);
+}
+function closeDrawer(){ $("scrim").hidden = true; $("drawer").hidden = true; if(lastFocus) lastFocus.focus(); }
+
+/* ================= PROVIDER ================= */
+function setP(cls, html){ const m = $("pmsg"); m.className = "pmsg" + (cls ? " " + cls : ""); m.innerHTML = html; }
+function providerUI(){
+  const p = prov.name, b = $("pbtn");
+  if(p === "demo"){ b.className = "pbtn"; $("ptxt").textContent = "No API key needed"; openKeys(false); }
+  else if(prov.connected[p]){ b.className = "pbtn"; $("ptxt").textContent = `Connected · ${prov.model[p]}`; setP("", `<b>Connected to ${LABEL[p]}.</b> Selected synthetic evidence is sent to ${LABEL[p]} when you run.`); }
+  else { b.className = "pbtn warn"; $("ptxt").textContent = "Add API key"; setP("warn", `<b>${LABEL[p]} mode.</b> Paste an API key and connect. Check the model name against the provider’s current docs.`); }
+  $("ktitle").textContent = p === "demo" ? "" : `Connect to ${LABEL[p]}`;
+  updateStepper(); if(state.view === "run" && state.stage === "ready") renderStage();
+}
+function openKeys(open){
+  if(prov.name === "demo") open = false;
+  $("keybox").hidden = !open; $("pbtn").setAttribute("aria-expanded", String(open));
+  if(open){ $("apikey").value = prov.key[prov.name]; $("model").value = prov.model[prov.name]; $("apikey").placeholder = prov.name === "claude" ? "sk-ant-…" : "sk-…"; $("apikey").focus(); }
+}
+function setProvider(p){
+  if(state.locked){ setStatus("Reset the run before switching provider."); return; }
+  prov.name = p;
+  document.querySelectorAll("#seg button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.p === p)));
+  providerUI(); readyStatus();
+  if(p !== "demo" && !prov.connected[p]) openKeys(true);
+}
+async function connect(){
+  const p = prov.name;
+  prov.key[p] = $("apikey").value.trim(); prov.model[p] = $("model").value.trim() || prov.model[p];
+  if(!prov.key[p]){ setP("err", `<b>Missing key.</b> Paste your ${LABEL[p]} API key, then connect.`); return; }
+  setP("warn", `<b>Connecting…</b> Sending a small test request to ${LABEL[p]}.`);
+  $("connect").disabled = true;
+  try{
+    await callLLM("Respond with one JSON object only.", 'Return this JSON exactly: {"ok":true}', p);
+    prov.connected[p] = true; providerUI(); setTimeout(() => openKeys(false), 900);
+  } catch(e){
+    prov.connected[p] = false; providerUI(); setP("err", `<b>Could not connect.</b> ${esc(e.message)}.`);
+  } finally { $("connect").disabled = false; }
+}
+
+/* ================= WIRING ================= */
+document.querySelectorAll(".step").forEach(s => s.addEventListener("click", () => showView(s.dataset.view)));
+document.querySelectorAll('.about .subnav [data-pane]').forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll('.about .subnav [data-pane]').forEach(x => { x.setAttribute("aria-selected", String(x === b)); $(x.dataset.pane).hidden = x !== b; });
+}));
+wireActs(document.querySelector(".about"));
+document.querySelectorAll("#seg button").forEach(b => b.addEventListener("click", () => setProvider(b.dataset.p)));
+$("pbtn").addEventListener("click", () => openKeys($("keybox").hidden));
+$("connect").addEventListener("click", connect);
+["apikey","model"].forEach(id => $(id).addEventListener("input", () => { prov.connected[prov.name] = false; }));
+$("apikey").addEventListener("keydown", e => { if(e.key === "Enter") connect(); });
+$("runAll").addEventListener("click", startRun);
+$("step").addEventListener("click", stepRun);
+$("reset").addEventListener("click", reset);
+$("exportPdf").addEventListener("click", exportPdf);
+$("allSrc").addEventListener("click", () => setPreset("all"));
+$("pwSrc").addEventListener("click", () => setPreset("prework"));
+$("minSrc").addEventListener("click", () => setPreset("minimum"));
+$("drClose").addEventListener("click", closeDrawer);
+$("scrim").addEventListener("click", closeDrawer);
+$("theme").addEventListener("click", () => {
+  const root = document.documentElement, dark = root.getAttribute("data-theme") !== "light";
+  root.setAttribute("data-theme", dark ? "light" : "dark");
+  $("theme").setAttribute("aria-label", dark ? "Switch to dark theme" : "Switch to light theme");
+});
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape"){ if(!$("drawer").hidden) closeDrawer(); else if(!$("keybox").hidden) openKeys(false); return; }
+  const t = e.target; if(t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  if(e.metaKey || e.ctrlKey || e.altKey || !$("drawer").hidden) return;
+  const views = {"1":"about","2":"evidence","3":"run","4":"results"};
+  if(views[e.key]){ showView(views[e.key]); e.preventDefault(); }
+  else if(e.key === "r" || e.key === "R"){ startRun(); e.preventDefault(); }
+  else if(e.key === "n" || e.key === "N"){ stepRun(); e.preventDefault(); }
+});
+
+$("trace").innerHTML = '<li><span class="empty">The trace fills in as each agent works.</span></li>';
+renderCards(); providerUI(); refresh(); readyStatus(); showView("about");
+})();
+</script>
+</body>
+</html>
